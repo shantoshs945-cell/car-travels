@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10251f">
+  <title>Roamly — Travel, your way</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--ink:#18352c;--muted:#718078;--green:#214b3d;--lime:#d7f36a;--paper:#fbfaf6;--line:#e9e9e1;--white:#fff;--shadow:0 18px 50px #18352c12}
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans",Arial,sans-serif}
+    button,input,select{font:inherit}
+    button{cursor:pointer}
+    a{color:inherit}
+    .shell{width:min(1180px,calc(100% - 48px));margin:auto}
+    .topbar{height:82px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:21px;letter-spacing:-.8px}
+    .brand-mark{display:grid;place-items:center;width:37px;height:37px;border-radius:12px;background:var(--lime);font-size:21px}
+    .nav-links{display:flex;gap:30px;color:#57665e;font-size:13px;font-weight:600}
+    .nav-links a{text-decoration:none}
+    .nav-links a:hover{color:var(--green)}
+    .top-actions{display:flex;align-items:center;gap:12px}
+    .language{height:40px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 12px;color:var(--ink);font-weight:600}
+    .top-book,.primary-button{border:0;border-radius:13px;background:var(--green);color:white;padding:13px 19px;font-weight:700;transition:.2s}
+    .top-book:hover,.primary-button:hover{background:#17372b;transform:translateY(-1px)}
+    .hero{min-height:500px;border-radius:28px;overflow:hidden;position:relative;background:#28483d;color:white;box-shadow:var(--shadow)}
+    .hero-photo{position:absolute;inset:-2%;background-image:linear-gradient(90deg,#101b19e8 0%,#14231dcc 42%,#14231d38 100%),url("https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=2000&q=90");background-position:center,54% 55%;background-size:cover;animation:hero-road-pan 28s ease-in-out 7s infinite alternate}
+    .hero-motion{position:absolute;inset:0;pointer-events:none;background:linear-gradient(0deg,#111b1a66,transparent 30%)}
+    .intro-scene{position:fixed;z-index:50;inset:0;overflow:hidden;background:#172820;color:white;isolation:isolate;animation:intro-scene-out .8s ease 6.65s forwards}
+    .intro-scene.finished{display:none}
+    body.intro-active{overflow:hidden}
+    .intro-photo{position:absolute;inset:0;background-image:linear-gradient(180deg,#101a1870 0%,transparent 30%,#10191655 77%,#101916a0 100%),url("https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=2200&q=90");background-size:cover;background-position:center,50% 54%;transform:scale(1.04);transform-origin:68% 66%;animation:intro-road-arrive 3.5s cubic-bezier(.2,.75,.18,1) both}
+    .intro-copy{position:absolute;z-index:5;top:9%;left:20px;right:20px;text-align:center;color:#fff;font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;text-shadow:0 2px 18px #0009;animation:intro-copy-fade 5.7s ease forwards}
+    .intro-copy:after{content:"";display:block;width:38px;height:1px;background:#fff;margin:14px auto 0}
+    .intro-flash{position:absolute;z-index:6;inset:0;background:#fff;opacity:0;pointer-events:none;animation:interior-flash .95s ease-in 5.55s forwards}
+    .intro-skip{position:absolute;z-index:7;right:22px;bottom:22px;border:1px solid #ffffff60;border-radius:30px;background:#10231dcc;color:white;padding:10px 15px;font-size:11px;font-weight:700;backdrop-filter:blur(8px)}
+    .intro-skip:hover{background:#fff;color:#18352c}
+    .intro-progress{position:absolute;z-index:6;left:0;right:0;bottom:0;height:3px;background:#ffffff20}
+    .intro-progress:after{content:"";display:block;width:100%;height:100%;background:var(--lime);transform-origin:left;animation:intro-progress 7s linear forwards}
+    .intro-scene.skipped{opacity:0;visibility:hidden;transition:opacity .45s ease,visibility .45s}
+    .intro-scene.skipped{animation:none}
+    .intro-scene.skipped .intro-photo,.intro-scene.skipped .intro-copy,.intro-scene.skipped .intro-progress:after,.intro-scene.skipped .intro-flash{animation:none}
+    @keyframes intro-road-arrive{0%{transform:scale(1.2);filter:brightness(.7);background-position:center,65% 54%}100%{transform:scale(1.04);filter:brightness(1);background-position:center,50% 54%}}
+    @keyframes intro-camera-in{to{transform:scale(3.2);background-position:center,50% 57%;filter:brightness(1.28)}}
+    .intro-scene.camera-in .intro-photo{animation:intro-camera-in 1.15s cubic-bezier(.5,0,.9,.6) forwards}
+    @keyframes intro-scene-out{to{opacity:0;visibility:hidden}}
+    @keyframes intro-copy-fade{0%,48%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-12px)}}
+    @keyframes intro-progress{to{transform:scaleX(0)}}
+    @keyframes interior-flash{0%{opacity:0}36%{opacity:1}100%{opacity:1}}
+    @keyframes hero-road-pan{0%{background-position:center,48% 55%}100%{background-position:center,56% 55%}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.intro-scene{display:none!important}}
+    .hero-content{position:relative;max-width:610px;padding:74px 64px 54px}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:1.5px;font-size:10px;font-weight:800;color:var(--lime)}
+    .eyebrow-dot{width:7px;height:7px;border-radius:50%;background:var(--lime)}
+    h1,h2,h3,p{margin-top:0}
+    h1{font:700 clamp(42px,5.5vw,68px)/1.03 "Playfair Display",Georgia,serif;letter-spacing:-1.8px;margin:18px 0}
+    .hero-copy{max-width:430px;color:#e2e9e4;font-size:15px;line-height:1.8;margin-bottom:26px}
+    .hero-buttons{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .hero .primary-button{background:var(--lime);color:var(--ink)}
+    .hero .primary-button:hover{background:#e4ff8a}
+    .text-button{color:white;font-weight:700;text-decoration:none;padding:12px}
+    .hero-stats{display:flex;gap:28px;margin-top:44px;color:#e0e7e2;font-size:11px}
+    .hero-stats strong{display:block;color:white;font-size:16px;margin-bottom:4px}
+    .section{padding:76px 0 0}
+    .section-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:27px}
+    .section-heading h2{font:700 clamp(28px,3.5vw,38px)/1.15 "Playfair Display",Georgia,serif;letter-spacing:-.6px;margin:9px 0 0}
+    .section-heading p{color:var(--muted);font-size:13px;margin:8px 0 0}
+    .section-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:1.6px;color:#758279;font-weight:800}
+    .season-tag{background:#eef2dd;border-radius:30px;padding:10px 14px;font-size:11px;font-weight:700;color:#4a5f38}
+    .packages{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .routes-section{padding-top:62px}
+    .route-card{background:white;border:1px solid var(--line);border-radius:19px;padding:20px;display:flex;flex-direction:column;min-height:228px}
+    .route-card.selected{outline:2px solid var(--green);outline-offset:1px}
+    .route-km{display:inline-flex;align-items:center;gap:6px;align-self:flex-start;background:#eef2dd;border-radius:30px;padding:7px 10px;font-size:10px;font-weight:800;color:#4a5f38}
+    .route-card h3{font:700 19px/1.35 "Playfair Display",Georgia,serif;margin:16px 0 6px}
+    .route-card p{color:var(--muted);font-size:11px;line-height:1.65;margin:0 0 15px}
+    .route-bottom{display:flex;justify-content:space-between;align-items:end;gap:8px;border-top:1px solid var(--line);padding-top:14px;margin-top:auto}
+    .route-fare{font-size:16px;font-weight:800}
+    .route-fare small{display:block;color:var(--muted);font-size:9px;font-weight:500;margin-top:3px}
+    .route-select{border:1px solid var(--green);background:white;color:var(--green);border-radius:10px;padding:9px 11px;font-size:10px;font-weight:800}
+    .route-card.selected .route-select{background:var(--green);color:white}
+    .package-card{overflow:hidden;border-radius:19px;background:white;border:1px solid var(--line);transition:.2s;cursor:pointer}
+    .package-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+    .package-card.selected{outline:2px solid var(--green);outline-offset:1px}
+    .package-image{height:190px;position:relative;background-size:cover;background-position:center}
+    .package-image:after{content:"";position:absolute;inset:45% 0 0;background:linear-gradient(transparent,#10251f77)}
+    .season-label{position:absolute;z-index:1;top:13px;left:13px;padding:7px 10px;border-radius:30px;background:#ffffffed;font-size:10px;font-weight:800}
+    .package-body{padding:17px 18px 19px}
+    .package-title-row{display:flex;justify-content:space-between;gap:10px;align-items:start}
+    .package-title-row h3{font-size:16px;margin:0 0 7px}
+    .package-days{color:var(--muted);font-size:11px;white-space:nowrap}
+    .package-location{color:var(--muted);font-size:11px}
+    .package-story{color:#53645a;font-size:11px;line-height:1.65;margin:12px 0 0}
+    .package-includes{color:#78847b;font-size:10px;line-height:1.5;margin:7px 0 0}
+    .package-bottom{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);margin-top:16px;padding-top:13px}
+    .package-price{font-weight:800;font-size:19px}
+    .package-price small{font-weight:500;color:var(--muted);font-size:10px}
+    .select-link{border:0;background:none;color:var(--green);font-size:11px;font-weight:800;padding:5px}
+    .cars-section{padding-bottom:0}
+    .cars-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .car-card{background:white;border:1px solid var(--line);border-radius:19px;overflow:hidden;transition:.2s}
+    .car-card.selected{outline:2px solid var(--green);outline-offset:1px}
+    .car-image{height:198px;background-size:cover;background-position:center;position:relative}
+    .car-image-badge{position:absolute;top:13px;left:13px;background:#ffffffed;border-radius:30px;padding:7px 10px;font-size:10px;font-weight:800}
+    .view-360{position:absolute;right:12px;bottom:12px;border:0;border-radius:10px;background:#10251fdd;color:white;padding:9px 11px;font-size:10px;font-weight:800}
+    .car-body{padding:16px 17px 18px}
+    .car-title-row{display:flex;align-items:start;justify-content:space-between;gap:8px}
+    .car-title-row h3{margin:0;font-size:16px}
+    .car-class{margin-top:5px;color:var(--muted);font-size:11px}
+    .car-rate{font-weight:800;font-size:17px;text-align:right}
+    .car-rate small{display:block;color:var(--muted);font-weight:500;font-size:9px}
+    .car-features{display:flex;gap:13px;color:#617067;font-size:10px;margin:15px 0}
+    .car-select{border:1px solid var(--green);color:var(--green);background:white;border-radius:10px;padding:9px 12px;font-size:11px;font-weight:800;width:100%}
+    .car-card.selected .car-select{background:var(--green);color:white}
+    .booking-wrap{padding:76px 0}
+    .booking-panel{display:grid;grid-template-columns:.82fr 1.18fr;background:#eff1e9;border-radius:24px;overflow:hidden}
+    .booking-intro{padding:38px;background:var(--green);color:white}
+    .booking-intro .section-eyebrow{color:var(--lime)}
+    .booking-intro h2{font:700 32px/1.2 "Playfair Display",Georgia,serif;margin:13px 0}
+    .booking-intro p{color:#d4e0d8;font-size:13px;line-height:1.8}
+    .trust-note{display:flex;align-items:center;gap:9px;margin-top:30px;font-size:11px;color:#e0e8e2}
+    .booking-form{padding:34px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .field{display:flex;flex-direction:column;gap:7px}
+    .field.full{grid-column:1/-1}
+    .field label{font-size:11px;font-weight:700;color:#43554b}
+    .field input,.field select{width:100%;height:45px;border:1px solid #dfe3d9;border-radius:10px;background:white;padding:0 12px;color:var(--ink);outline:none}
+    .field input:focus,.field select:focus{border-color:var(--green);box-shadow:0 0 0 3px #214b3d16}
+    .route-quote{grid-column:1/-1;border:1px solid #dfe3d9;border-radius:12px;background:#fff;padding:13px}
+    .route-quote-title{font-size:11px;font-weight:800;margin-bottom:7px}
+    .route-quote-details{color:#66756b;font-size:10px;line-height:1.7}
+    .route-quote-details strong{color:var(--green)}
+    .estimate{display:flex;justify-content:space-between;align-items:center;margin:20px 0;padding:15px 0;border-top:1px solid #dfe3d9;border-bottom:1px solid #dfe3d9}
+    .estimate-label{font-size:11px;color:#5e6e64}
+    .estimate-label small{display:block;color:#829087;margin-top:4px}
+    .estimate-total{font-size:23px;font-weight:800}
+    .form-submit{width:100%}
+    .form-error{color:#a93232;font-size:11px;min-height:16px;margin:9px 0 0}
+    .demo-note{font-size:10px;color:#7a877d;text-align:center;margin:11px 0 0}
+    .footer{border-top:1px solid var(--line);padding:23px 0 30px;color:#718078;font-size:10px;display:flex;justify-content:space-between;gap:15px}
+    .modal-backdrop{position:fixed;z-index:10;inset:0;background:#091710b8;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-backdrop.open{display:flex}
+    .modal{position:relative;width:min(550px,100%);max-height:90vh;overflow:auto;border-radius:22px;background:white;padding:28px;box-shadow:0 30px 90px #0004}
+    .modal-close{position:absolute;right:17px;top:16px;width:34px;height:34px;border:0;border-radius:50%;background:#f1f2ed;font-size:18px}
+    .modal h2{font:700 27px "Playfair Display",Georgia,serif;margin:5px 40px 8px 0}
+    .modal-subtitle{color:var(--muted);font-size:12px;line-height:1.6;margin-bottom:20px}
+    .payment-choice{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:13px;margin:10px 0;cursor:pointer}
+    .payment-choice:has(input:checked){border-color:var(--green);background:#f6f8f0}
+    .payment-choice input{accent-color:var(--green)}
+    .payment-choice span{font-size:12px;font-weight:700}
+    .payment-choice small{display:block;color:var(--muted);font-size:10px;font-weight:400;margin-top:3px}
+    .modal-total{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:14px;margin:18px 0;font-size:13px;font-weight:800}
+    .modal .primary-button{width:100%}
+    .modal-disclaimer{font-size:10px;line-height:1.6;color:var(--muted);margin:13px 0 0;text-align:center}
+    .viewer-modal{width:min(760px,100%)}
+    .viewer-stage{height:360px;border-radius:16px;background:radial-gradient(ellipse at 50% 70%,#dfe4d8,#f5f4ef 64%);display:grid;place-items:center;overflow:hidden;perspective:900px;touch-action:pan-y;cursor:ew-resize;user-select:none}
+    .viewer-car{width:min(78%,560px);max-height:290px;object-fit:contain;filter:drop-shadow(0 20px 14px #18352c30);pointer-events:none;transform-style:preserve-3d}
+    .viewer-footer{display:flex;justify-content:space-between;align-items:center;margin-top:13px;color:var(--muted);font-size:11px}
+    .angle-value{font-weight:800;color:var(--green)}
+    .ticket-preview{background:#f4f5ef;border:1px dashed #cdd4c8;border-radius:14px;padding:17px;margin:16px 0}
+    .ticket-brand{display:flex;justify-content:space-between;align-items:center;font-weight:800}
+    .ticket-id{color:#758078;font-size:10px}
+    .ticket-route{font:700 20px "Playfair Display",Georgia,serif;margin:18px 0 4px}
+    .ticket-meta{color:#637168;font-size:11px;line-height:1.9}
+    .ticket-actions{display:flex;gap:10px}
+    .ticket-actions button,.ticket-actions a{flex:1;text-align:center;text-decoration:none}
+    .secondary-button{border:1px solid var(--green);border-radius:13px;background:white;color:var(--green);padding:12px;font-weight:700}
+    .festival-section{padding-top:64px}
+    .package-image.festival-card{height:205px}
+    .festival-card .season-label{background:#fff6df;color:#6e5220}
+    .support-section{padding:0 0 74px}
+    .support-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
+    .support-card{background:#fff;border:1px solid var(--line);border-radius:19px;padding:24px}
+    .support-card.featured{background:#eef1e8;border-color:#e2e8dc}
+    .support-card h3{font:700 22px "Playfair Display",Georgia,serif;margin:9px 0}
+    .support-card>p{color:var(--muted);font-size:12px;line-height:1.7;margin-bottom:17px}
+    .support-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .support-actions a{display:inline-flex;align-items:center;justify-content:center;border-radius:10px;padding:10px 13px;text-decoration:none;font-size:11px;font-weight:800}
+    .support-main-link{background:var(--green);color:#fff}
+    .support-alt-link{border:1px solid #d9dfd5;background:#fff;color:var(--green)}
+    .support-hours{border-top:1px solid #dfe3d9;margin-top:19px;padding-top:14px;color:#718078;font-size:10px;line-height:1.6}
+    .contact-form{display:grid;gap:10px;margin-top:18px}
+    .contact-form input,.contact-form textarea{width:100%;border:1px solid #dfe3d9;border-radius:10px;background:white;padding:11px 12px;color:var(--ink);font:inherit;font-size:11px;outline:none}
+    .contact-form textarea{min-height:78px;resize:vertical}
+    .contact-form input:focus,.contact-form textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px #214b3d16}
+    .contact-form button{justify-self:start}
+    .faq-list{border-top:1px solid var(--line)}
+    .faq-list details{border-bottom:1px solid var(--line);padding:13px 0}
+    .faq-list summary{cursor:pointer;list-style:none;font-size:12px;font-weight:700;display:flex;justify-content:space-between;gap:12px}
+    .faq-list summary::-webkit-details-marker{display:none}
+    .faq-list summary:after{content:"+";color:var(--green);font-size:17px;line-height:12px}
+    .faq-list details[open] summary:after{content:"−"}
+    .faq-list details p{color:var(--muted);font-size:11px;line-height:1.7;margin:10px 22px 0 0}
+    .hidden{display:none!important}
+    @media(max-width:820px){.nav-links{display:none}.hero-content{padding:62px 38px}.packages,.cars-grid{grid-template-columns:repeat(2,1fr)}.booking-panel{grid-template-columns:1fr}.booking-intro{padding:28px 32px}.trust-note{margin-top:16px}.support-grid{grid-template-columns:1fr}}
+    @media(max-width:560px){.shell{width:min(100% - 28px,1180px)}.topbar{height:68px}.brand{font-size:18px}.brand-mark{width:33px;height:33px}.top-book{display:none}.language{height:37px;padding:0 8px;font-size:11px}.hero{min-height:510px;border-radius:20px}.hero-photo{background-position:center,65% 55%;background-image:linear-gradient(90deg,#101b19dc 0%,#14231d88 58%,#14231d38 100%),url("https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=1100&q=85")}.hero-content{padding:54px 25px 34px}.hero-copy{font-size:13px}.hero-stats{gap:18px;margin-top:34px}.intro-photo-road{background-position:center,60% 58%}.intro-car-photo,.intro-door{background-position:60% 58%}.intro-person{left:44%;top:47%;width:17%;height:30%}.intro-copy{font-size:9px;letter-spacing:2px}.section{padding-top:55px}.festival-section{padding-top:48px}.section-heading{align-items:start;flex-direction:column;gap:12px}.packages,.cars-grid{grid-template-columns:1fr}.package-image{height:210px}.car-image{height:225px}.booking-wrap{padding:55px 0}.support-section{padding-bottom:55px}.support-card{padding:21px}.booking-intro,.booking-form{padding:25px 21px}.form-grid{grid-template-columns:1fr;gap:13px}.field.full{grid-column:auto}.footer{flex-direction:column}.viewer-stage{height:270px}.viewer-car{width:90%}.modal{padding:23px 19px}.ticket-actions{flex-direction:column}}
+    @media(max-width:560px){.hero-photo{background-position:center,61% 55%;background-image:linear-gradient(90deg,#101b19e8 0%,#14231dc2 52%,#14231d44 100%),url("https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1100&q=85")}.intro-photo,.intro-car,.intro-door{background-position:center,56% 54%}.intro-copy{font-size:10px;letter-spacing:1.8px}.intro-skip{right:15px;bottom:16px}}
+  </style>
+</head>
+<body class="intro-active">
+  <div class="intro-scene" id="introScene" role="dialog" aria-label="Roamly travel welcome">
+    <div class="intro-photo" aria-hidden="true"></div>
+    <p class="intro-copy" data-i18n="introTagline">Welcome to Roamly Travels</p>
+    <div class="intro-flash" aria-hidden="true"></div>
+    <button class="intro-skip" type="button" id="skipIntro" data-i18n="skipIntro">Skip intro</button>
+    <div class="intro-progress" aria-hidden="true"></div>
+  </div>
+  <header class="shell topbar">
+    <a class="brand" href="#" aria-label="Roamly home"><span class="brand-mark">↗</span> roamly<span style="color:#829087;font-weight:500">.</span></a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#packages" data-i18n="navTrips">Trips</a>
+      <a href="#routes" data-i18n="navRoutes">Routes</a>
+      <a href="#cars" data-i18n="navCars">Cars</a>
+      <a href="#booking" data-i18n="navBooking">How to book</a>
+      <a href="#support" data-i18n="navSupport">Help</a>
+      <a href="#support" data-i18n="navContact">Contact</a>
+    </nav>
+    <div class="top-actions">
+      <select class="language" id="languageSelect" aria-label="Choose language">
+        <option value="te">తెలుగు</option>
+        <option value="en">English</option>
+        <option value="ta">தமிழ்</option>
+        <option value="hi">हिन्दी</option>
+      </select>
+      <button class="top-book" type="button" data-i18n="bookTrip" onclick="document.querySelector('#booking').scrollIntoView({behavior:'smooth'})">Book a trip</button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="hero-photo"></div>
+      <div class="hero-motion" aria-hidden="true"></div>
+      <div class="hero-content">
+        <span class="eyebrow"><span class="eyebrow-dot"></span><span data-i18n="heroEyebrow">YOUR NEXT GETAWAY STARTS HERE</span></span>
+        <h1 data-i18n="heroTitle">Welcome to<br>Roamly Travels.</h1>
+        <p class="hero-copy" data-i18n="heroCopy">Thoughtfully planned road trips, handpicked stays, and the right car for every kind of getaway. Pick a season, find your escape.</p>
+        <div class="hero-buttons">
+          <button class="primary-button" type="button" data-i18n="exploreTrips" onclick="document.querySelector('#packages').scrollIntoView({behavior:'smooth'})">Explore trips <span aria-hidden="true">↗</span></button>
+          <a class="text-button" href="#cars"><span data-i18n="findCar">Find your car</span> ↓</a>
+        </div>
+        <div class="hero-stats">
+          <div><strong>12+</strong><span data-i18n="statTrips">curated escapes</span></div>
+          <div><strong>4.9/5</strong><span data-i18n="statRating">traveller rating</span></div>
+          <div><strong>24/7</strong><span data-i18n="statSupport">trip support</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="packages">
+      <div class="section-heading">
+        <div><span class="section-eyebrow" data-i18n="seasonalEscapes">MADE FOR THE MOMENT</span><h2 data-i18n="packageHeading">Find your kind of escape</h2><p data-i18n="packageSubheading">Season-inspired journeys, ready when you are.</p></div>
+        <span class="season-tag" id="currentSeason"></span>
+      </div>
+      <div class="packages" id="packageList"></div>
+    </section>
+
+    <section class="section festival-section" id="festivals">
+      <div class="section-heading">
+        <div><span class="section-eyebrow" data-i18n="festivalEyebrow">TRAVEL WITH THE CELEBRATIONS</span><h2 data-i18n="festivalHeading">Make a festival part of the journey</h2><p data-i18n="festivalSubheading">Local traditions, easy road trips, and a little more time together.</p></div>
+        <span class="season-tag" data-i18n="festivalDateNote">Festival dates vary each year</span>
+      </div>
+      <div class="packages" id="festivalList"></div>
+    </section>
+
+    <section class="section routes-section" id="routes">
+      <div class="section-heading">
+        <div><span class="section-eyebrow" data-i18n="regionalDrivesEyebrow">EAST COAST & GODAVARI COUNTRY</span><h2 data-i18n="regionalDrivesHeading">Regional drives, made easy</h2><p data-i18n="regionalDrivesCopy">Choose a route to see an estimated distance-based car fare.</p></div>
+        <span class="season-tag" data-i18n="distanceEstimateTag">Approx. road distance · one way</span>
+      </div>
+      <div class="packages" id="routeList"></div>
+    </section>
+
+    <section class="section cars-section" id="cars">
+      <div class="section-heading">
+        <div><span class="section-eyebrow" data-i18n="theRightRide">THE RIGHT RIDE</span><h2 data-i18n="carHeading">Pick your travel companion</h2><p data-i18n="carSubheading">Every car comes with a local, experienced driver.</p></div>
+        <span class="season-tag" data-i18n="carNote">360° preview on every car</span>
+      </div>
+      <div class="cars-grid" id="carList"></div>
+    </section>
+
+    <section class="booking-wrap" id="booking">
+      <div class="booking-panel">
+        <div class="booking-intro">
+          <span class="section-eyebrow" data-i18n="almostThere">ALMOST THERE</span>
+          <h2 data-i18n="bookingHeading">Your next story starts with a booking.</h2>
+          <p data-i18n="bookingCopy">Choose your dates and tell us where to reach you. We’ll take care of the little details, so you can focus on the big views.</p>
+          <div class="trust-note"><span aria-hidden="true">✦</span><span data-i18n="bookingTrust">Flexible plans · Friendly local drivers · No hidden fees</span></div>
+        </div>
+        <form class="booking-form" id="bookingForm">
+          <div class="form-grid">
+            <div class="field"><label for="guestName" data-i18n="fullName">Full name</label><input id="guestName" name="name" required autocomplete="name" placeholder="e.g. Priya Kumar"></div>
+            <div class="field"><label for="guestPhone" data-i18n="phoneNumber">Phone number</label><input id="guestPhone" name="phone" required type="tel" inputmode="tel" autocomplete="tel" pattern="[0-9+\s\(\)\-]{8,18}" placeholder="+91 98765 43210"></div>
+            <div class="field"><label for="tripDate" data-i18n="startDate">Trip start date</label><input id="tripDate" name="date" type="date" required></div>
+            <div class="field"><label for="travellers" data-i18n="travellers">Travellers</label><select id="travellers" name="travellers"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option></select></div>
+            <div class="field full"><label for="pickup" data-i18n="pickupCity">Pickup city</label><input id="pickup" name="pickup" required data-i18n-placeholder="pickupCityPlaceholder" placeholder="e.g. Chennai"></div>
+            <div class="field full"><label for="journeyType" data-i18n="journeyType">Journey type</label><select id="journeyType" name="journeyType"><option value="oneway" data-i18n="oneWay">One way</option><option value="return" data-i18n="roundTrip">Round trip</option></select></div>
+            <div class="route-quote"><div class="route-quote-title" id="routeQuoteTitle"></div><div class="route-quote-details" id="routeQuoteDetails"></div></div>
+          </div>
+          <div class="estimate"><div class="estimate-label"><span data-i18n="estimatedTotal">Estimated total</span><small id="estimateDetails"></small></div><div class="estimate-total" id="estimateTotal">—</div></div>
+          <button class="primary-button form-submit" type="submit" data-i18n="continuePayment">Continue to payment →</button>
+          <p class="form-error" id="formError" role="alert"></p>
+          <p class="demo-note" data-i18n="demoPaymentNote">Demo only — no real payment will be collected.</p>
+        </form>
+      </div>
+    </section>
+
+    <section class="section support-section" id="support">
+      <div class="section-heading">
+        <div><span class="section-eyebrow" data-i18n="supportEyebrow">A REAL PERSON, WHEN YOU NEED ONE</span><h2 data-i18n="supportHeading">A little help goes a long way</h2><p data-i18n="supportSubheading">Questions before you book? We’ve gathered the useful bits here.</p></div>
+      </div>
+      <div class="support-grid">
+        <article class="support-card featured">
+          <span class="section-eyebrow" data-i18n="supportCardEyebrow">TRIP PLANNING HELP</span>
+          <h3 data-i18n="supportCardTitle">Not sure which trip fits?</h3>
+          <p data-i18n="supportCardCopy">Tell us your dates, group size, and the kind of break you’re after. We’ll help you compare the options before you decide.</p>
+          <div class="support-actions">
+            <a class="support-main-link" href="https://wa.me/?text=Hi%20Roamly%2C%20I%27d%20like%20help%20choosing%20a%20trip." target="_blank" rel="noopener noreferrer" data-i18n="supportWhatsapp">Ask on WhatsApp ↗</a>
+            <a class="support-alt-link" href="#booking" data-i18n="supportBook">Start a booking</a>
+          </div>
+          <div class="support-hours" data-i18n="supportAvailability">Demo support link · For a live site, connect your travel team’s WhatsApp number.</div>
+          <form class="contact-form" id="contactForm">
+            <input name="contactName" required autocomplete="name" data-i18n-placeholder="contactNamePlaceholder" placeholder="Your name">
+            <input name="contactPhone" type="tel" autocomplete="tel" data-i18n-placeholder="contactPhonePlaceholder" placeholder="Phone number (optional)">
+            <textarea name="contactMessage" required data-i18n-placeholder="contactMessagePlaceholder" placeholder="How can we help with your trip?"></textarea>
+            <button class="primary-button" type="submit" data-i18n="sendWhatsappMessage">Send via WhatsApp ↗</button>
+          </form>
+          <div class="support-hours" data-i18n="contactDemoNote">This demo opens WhatsApp with your message. Add your business WhatsApp number for direct enquiries.</div>
+        </article>
+        <article class="support-card">
+          <span class="section-eyebrow" data-i18n="faqEyebrow">GOOD TO KNOW</span>
+          <h3 data-i18n="faqHeading">A few quick answers</h3>
+          <div class="faq-list">
+            <details><summary data-i18n="faqDatesQuestion">Do festival dates change every year?</summary><p data-i18n="faqDatesAnswer">Yes. Some festivals follow the lunar calendar. Treat the month shown as a guide and confirm the exact dates before booking.</p></details>
+            <details><summary data-i18n="faqPriceQuestion">What does the package estimate include?</summary><p data-i18n="faqPriceAnswer">The estimate combines the per-person trip package and your selected car with driver. It is illustrative demo pricing, not a final quote.</p></details>
+            <details><summary data-i18n="faqPaymentQuestion">Can I make a real payment here?</summary><p data-i18n="faqPaymentAnswer">No. This is a front-end demo. Payment choices only preview checkout; no money or card details are collected.</p></details>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell footer"><span>© 2026 Roamly Travel Co. <span data-i18n="footerDemo">A travel booking demo.</span></span><a href="https://wa.me/?text=Hi%20Roamly%2C%20I%27d%20like%20help%20planning%20a%20trip" target="_blank" rel="noopener noreferrer" data-i18n="whatsappHelp">Chat with us on WhatsApp ↗</a></footer>
+
+  <div class="modal-backdrop" id="paymentBackdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="paymentTitle">
+      <button class="modal-close" type="button" data-close="paymentBackdrop" aria-label="Close">×</button>
+      <span class="section-eyebrow" data-i18n="secureCheckout">SECURE CHECKOUT</span>
+      <h2 id="paymentTitle" data-i18n="paymentHeading">Choose how to pay</h2>
+      <p class="modal-subtitle" data-i18n="paymentSubheading">This is a demo checkout. Selecting an option will not charge you.</p>
+      <label class="payment-choice"><input type="radio" name="paymentMethod" value="UPI" checked><span>UPI<small data-i18n="upiHint">GPay, PhonePe, Paytm (demo)</small></span></label>
+      <label class="payment-choice"><input type="radio" name="paymentMethod" value="Card"><span data-i18n="debitCreditCard">Debit / credit card<small data-i18n="cardHint">Demo only — no card details needed</small></span></label>
+      <label class="payment-choice"><input type="radio" name="paymentMethod" value="Pay on trip"><span data-i18n="payOnTrip">Pay on trip<small data-i18n="payOnTripHint">Confirm now, pay your driver later</small></span></label>
+      <div class="modal-total"><span data-i18n="amountDue">Amount due</span><span id="paymentAmount"></span></div>
+      <button class="primary-button" type="button" id="confirmPayment" data-i18n="confirmDemoBooking">Confirm demo booking</button>
+      <p class="modal-disclaimer" data-i18n="paymentDisclaimer">Demo only. No money or payment details are collected. Connect a payment provider before accepting real bookings.</p>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="viewerBackdrop" role="presentation">
+    <section class="modal viewer-modal" role="dialog" aria-modal="true" aria-labelledby="viewerTitle">
+      <button class="modal-close" type="button" data-close="viewerBackdrop" aria-label="Close">×</button>
+      <span class="section-eyebrow" data-i18n="360Preview">360° CAR PREVIEW</span>
+      <h2 id="viewerTitle"></h2>
+      <p class="modal-subtitle" data-i18n="dragCarHint">Drag left or right to explore this interactive demo preview.</p>
+      <div class="viewer-stage" id="viewerStage"><img class="viewer-car" id="viewerCar" alt=""></div>
+      <div class="viewer-footer"><span data-i18n="dragToRotate">↔ Drag to rotate</span><span class="angle-value" id="angleValue">0°</span></div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="ticketBackdrop" role="presentation">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="ticketTitle">
+      <button class="modal-close" type="button" data-close="ticketBackdrop" aria-label="Close">×</button>
+      <span class="section-eyebrow" data-i18n="bookingConfirmed">BOOKING CONFIRMED · DEMO</span>
+      <h2 id="ticketTitle" data-i18n="ticketHeading">Your trip is taking shape!</h2>
+      <p class="modal-subtitle" data-i18n="ticketSubheading">Your demo ticket is ready. Download it or share your trip details.</p>
+      <div class="ticket-preview" id="ticketPreview"></div>
+      <div class="ticket-actions">
+        <button class="primary-button" type="button" id="downloadTicket" data-i18n="downloadTicket">↓ Download ticket</button>
+        <a class="secondary-button" id="shareWhatsapp" href="https://wa.me/" target="_blank" rel="noopener noreferrer" data-i18n="shareWhatsapp">Share on WhatsApp ↗</a>
+      </div>
+      <p class="modal-disclaimer" data-i18n="ticketDisclaimer">This sample ticket is not valid for travel or payment.</p>
+    </section>
+  </div>
+
+  <script>
+    const translations = {
+      en: {
+        navTrips:"Trips",navCars:"Cars",navBooking:"How to book",bookTrip:"Book a trip",heroEyebrow:"YOUR NEXT GETAWAY STARTS HERE",heroTitle:"Take the scenic<br>route.",heroCopy:"Thoughtfully planned road trips, handpicked stays, and the right car for every kind of getaway. Pick a season, find your escape.",exploreTrips:"Explore trips",findCar:"Find your car",statTrips:"curated escapes",statRating:"traveller rating",statSupport:"trip support",seasonalEscapes:"MADE FOR THE MOMENT",packageHeading:"Find your kind of escape",packageSubheading:"Season-inspired journeys, ready when you are.",theRightRide:"THE RIGHT RIDE",carHeading:"Pick your travel companion",carSubheading:"Every car comes with a local, experienced driver.",carNote:"360° preview on every car",almostThere:"ALMOST THERE",bookingHeading:"Your next story starts with a booking.",bookingCopy:"Choose your dates and tell us where to reach you. We’ll take care of the little details, so you can focus on the big views.",bookingTrust:"Flexible plans · Friendly local drivers · No hidden fees",fullName:"Full name",phoneNumber:"Phone number",startDate:"Trip start date",travellers:"Travellers",pickupCity:"Pickup city",estimatedTotal:"Estimated total",continuePayment:"Continue to payment →",demoPaymentNote:"Demo only — no real payment will be collected.",footerDemo:"A travel booking demo.",whatsappHelp:"Chat with us on WhatsApp ↗",secureCheckout:"SECURE CHECKOUT",paymentHeading:"Choose how to pay",paymentSubheading:"This is a demo checkout. Selecting an option will not charge you.",upiHint:"GPay, PhonePe, Paytm (demo)",debitCreditCard:"Debit / credit card",cardHint:"Demo only — no card details needed",payOnTrip:"Pay on trip",payOnTripHint:"Confirm now, pay your driver later",amountDue:"Amount due",confirmDemoBooking:"Confirm demo booking",paymentDisclaimer:"Demo only. No money or payment details are collected. Connect a payment provider before accepting real bookings.", "360Preview":"360° CAR PREVIEW",dragCarHint:"Drag left or right to explore this interactive demo preview.",dragToRotate:"↔ Drag to rotate",bookingConfirmed:"BOOKING CONFIRMED · DEMO",ticketHeading:"Your trip is taking shape!",ticketSubheading:"Your demo ticket is ready. Download it or share your trip details.",downloadTicket:"↓ Download ticket",shareWhatsapp:"Share on WhatsApp ↗",ticketDisclaimer:"This sample ticket is not valid for travel or payment.",perPerson:"/ person",days:"days",selectTrip:"Choose trip",selectedTrip:"Selected",selectCar:"Choose this car",selectedCar:"Selected",seasonSummer:"SUMMER ESCAPE",seasonMonsoon:"MONSOON MAGIC",seasonWinter:"WINTER SUN",seasonLabel:"Current season",features:"seats · AC · driver",estimateFor:"{days} days · {people} travellers",requiredSelections:"Please select a trip package and car before continuing.",ticketRoute:"{from} → {to}",ticketTrip:"Trip",ticketCar:"Car",ticketDate:"Date",ticketTravellers:"Travellers",ticketPickup:"Pickup",ticketPayment:"Payment",ticketTotal:"Total",ticketGuest:"Guest",downloadFile:"roamly-demo-ticket.html"
+      },
+      te: {
+        navTrips:"ట్రిప్స్",navCars:"కార్లు",navBooking:"బుకింగ్ విధానం",bookTrip:"ట్రిప్ బుక్ చేయండి",heroEyebrow:"మీ తదుపరి విహారం ఇక్కడ మొదలు",heroTitle:"ఆహ్లాదకరమైన<br>ప్రయాణం మొదలుపెట్టండి.",heroCopy:"చక్కగా ప్రణాళిక చేసిన రోడ్ ట్రిప్స్, ఎంపిక చేసిన బసలు, ప్రతి విహారానికి సరైన కారు. మీ సీజన్ ఎంచుకుని, మీ ప్రయాణాన్ని కనుగొనండి.",exploreTrips:"ట్రిప్స్ చూడండి",findCar:"మీ కారును ఎంచుకోండి",statTrips:"ఎంపిక చేసిన విహారాలు",statRating:"ప్రయాణికుల రేటింగ్",statSupport:"ట్రిప్ సహాయం",seasonalEscapes:"ఈ సీజన్ కోసం ప్రత్యేకం",packageHeading:"మీకు నచ్చిన విహారాన్ని ఎంచుకోండి",packageSubheading:"సీజన్‌కు తగ్గ ప్రయాణాలు, మీ కోసం సిద్ధంగా ఉన్నాయి.",theRightRide:"సరైన ప్రయాణ వాహనం",carHeading:"మీ ప్రయాణ సహచరుడిని ఎంచుకోండి",carSubheading:"ప్రతి కారుతో అనుభవజ్ఞుడైన స్థానిక డ్రైవర్ ఉంటారు.",carNote:"ప్రతి కారును 360°లో చూడండి",almostThere:"మరికొద్ది అడుగులు",bookingHeading:"మీ తదుపరి కథ బుకింగ్‌తో మొదలవుతుంది.",bookingCopy:"మీ తేదీలు ఎంచుకుని, మిమ్మల్ని సంప్రదించడానికి వివరాలు ఇవ్వండి. చిన్న చిన్న ఏర్పాట్లు మేము చూసుకుంటాం.",bookingTrust:"అనుకూలమైన ప్లాన్లు · స్థానిక డ్రైవర్లు · దాచిన ఛార్జీలు లేవు",fullName:"పూర్తి పేరు",phoneNumber:"ఫోన్ నంబర్",startDate:"ప్రయాణం ప్రారంభ తేదీ",travellers:"ప్రయాణికులు",pickupCity:"పికప్ నగరం",estimatedTotal:"అంచనా మొత్తం",continuePayment:"చెల్లింపుకు కొనసాగండి →",demoPaymentNote:"ఇది డెమో మాత్రమే — నిజమైన చెల్లింపు జరగదు.",footerDemo:"ప్రయాణ బుకింగ్ డెమో.",whatsappHelp:"WhatsAppలో మాతో మాట్లాడండి ↗",secureCheckout:"సురక్షిత చెల్లింపు",paymentHeading:"చెల్లింపు విధానం ఎంచుకోండి",paymentSubheading:"ఇది డెమో చెక్అవుట్. ఎంచుకున్నా మీకు ఛార్జీ ఉండదు.",upiHint:"GPay, PhonePe, Paytm (డెమో)",debitCreditCard:"డెబిట్ / క్రెడిట్ కార్డ్",cardHint:"డెమో మాత్రమే — కార్డ్ వివరాలు అవసరం లేదు",payOnTrip:"ప్రయాణంలో చెల్లించండి",payOnTripHint:"ఇప్పుడే నిర్ధారించండి, డ్రైవర్‌కు తర్వాత చెల్లించండి",amountDue:"చెల్లించాల్సిన మొత్తం",confirmDemoBooking:"డెమో బుకింగ్ నిర్ధారించండి",paymentDisclaimer:"డెమో మాత్రమే. డబ్బు లేదా చెల్లింపు వివరాలు సేకరించము. నిజమైన బుకింగ్‌లకు చెల్లింపు సేవను అనుసంధానించండి.","360Preview":"360° కారు వీక్షణ",dragCarHint:"ఈ ఇంటరాక్టివ్ డెమోను చూడటానికి ఎడమకు లేదా కుడికి లాగండి.",dragToRotate:"↔ తిప్పడానికి లాగండి",bookingConfirmed:"బుకింగ్ నిర్ధారించబడింది · డెమో",ticketHeading:"మీ ప్రయాణం సిద్ధమవుతోంది!",ticketSubheading:"మీ డెమో టికెట్ సిద్ధంగా ఉంది. డౌన్‌లోడ్ చేయండి లేదా వివరాలు పంచుకోండి.",downloadTicket:"↓ టికెట్ డౌన్‌లోడ్",shareWhatsapp:"WhatsAppలో పంచుకోండి ↗",ticketDisclaimer:"ఈ నమూనా టికెట్ ప్రయాణానికి లేదా చెల్లింపుకు చెల్లదు.",perPerson:"/ ఒక్కొక్కరికి",days:"రోజులు",selectTrip:"ట్రిప్ ఎంచుకోండి",selectedTrip:"ఎంచుకున్నారు",selectCar:"ఈ కారును ఎంచుకోండి",selectedCar:"ఎంచుకున్నారు",seasonSummer:"వేసవి విహారం",seasonMonsoon:"వర్షాకాల మజా",seasonWinter:"శీతాకాల సూర్యకాంతి",seasonLabel:"ప్రస్తుత సీజన్",features:"సీట్లు · AC · డ్రైవర్",estimateFor:"{days} రోజులు · {people} ప్రయాణికులు",requiredSelections:"కొనసాగించే ముందు ట్రిప్ ప్యాకేజీ, కారును ఎంచుకోండి.",ticketRoute:"{from} → {to}",ticketTrip:"ట్రిప్",ticketCar:"కారు",ticketDate:"తేదీ",ticketTravellers:"ప్రయాణికులు",ticketPickup:"పికప్",ticketPayment:"చెల్లింపు",ticketTotal:"మొత్తం",ticketGuest:"ప్రయాణికుడు",downloadFile:"roamly-demo-ticket.html"
+      },
+      ta: {
+        navTrips:"பயணங்கள்",navCars:"கார்கள்",navBooking:"முன்பதிவு செய்வது எப்படி",bookTrip:"பயணத்தை முன்பதிவு செய்",heroEyebrow:"உங்கள் அடுத்த பயணம் இங்கே தொடங்குகிறது",heroTitle:"இயற்கை அழைக்கும்<br>பாதையில் செல்லுங்கள்.",heroCopy:"கவனமாகத் திட்டமிடப்பட்ட சாலைப் பயணங்கள், தேர்ந்தெடுக்கப்பட்ட தங்குமிடங்கள், ஒவ்வொரு பயணத்திற்கும் ஏற்ற கார். பருவத்தைத் தேர்ந்தெடுத்து பயணத்தைத் தொடங்குங்கள்.",exploreTrips:"பயணங்களைப் பாருங்கள்",findCar:"உங்கள் காரைத் தேர்ந்தெடுங்கள்",statTrips:"தேர்ந்தெடுத்த பயணங்கள்",statRating:"பயணிகள் மதிப்பீடு",statSupport:"பயண உதவி",seasonalEscapes:"இந்தப் பருவத்திற்காக",packageHeading:"உங்கள் விருப்பமான பயணத்தைத் தேர்ந்தெடுங்கள்",packageSubheading:"பருவத்திற்கேற்ற பயணங்கள் உங்களுக்காகத் தயார்.",theRightRide:"சரியான வாகனம்",carHeading:"உங்கள் பயணத் துணையைத் தேர்ந்தெடுங்கள்",carSubheading:"ஒவ்வொரு காரிலும் அனுபவமுள்ள உள்ளூர் ஓட்டுநர்.",carNote:"ஒவ்வொரு காரையும் 360° பாருங்கள்",almostThere:"இன்னும் கொஞ்சம்",bookingHeading:"உங்கள் அடுத்த கதை முன்பதிவில் தொடங்குகிறது.",bookingCopy:"தேதிகளைத் தேர்ந்தெடுத்து தொடர்பு விவரங்களை அளியுங்கள். மற்ற ஏற்பாடுகளை நாங்கள் கவனித்துக்கொள்கிறோம்.",bookingTrust:"நெகிழ்வான திட்டங்கள் · உள்ளூர் ஓட்டுநர்கள் · மறைமுகக் கட்டணம் இல்லை",fullName:"முழுப் பெயர்",phoneNumber:"தொலைபேசி எண்",startDate:"பயணம் தொடங்கும் தேதி",travellers:"பயணிகள்",pickupCity:"ஏறும் நகரம்",estimatedTotal:"மதிப்பிடப்பட்ட மொத்தம்",continuePayment:"கட்டணத்திற்குத் தொடரவும் →",demoPaymentNote:"டெமோ மட்டுமே — உண்மையான கட்டணம் வசூலிக்கப்படாது.",footerDemo:"பயண முன்பதிவு டெமோ.",whatsappHelp:"WhatsApp-ல் பேசுங்கள் ↗",secureCheckout:"பாதுகாப்பான கட்டணம்",paymentHeading:"கட்டண முறையைத் தேர்ந்தெடுங்கள்",paymentSubheading:"இது டெமோ. தேர்ந்தெடுப்பதால் கட்டணம் வசூலிக்கப்படாது.",upiHint:"GPay, PhonePe, Paytm (டெமோ)",debitCreditCard:"டெபிட் / கிரெடிட் கார்டு",cardHint:"டெமோ மட்டுமே — அட்டை விவரங்கள் தேவையில்லை",payOnTrip:"பயணத்தின்போது செலுத்துங்கள்",payOnTripHint:"இப்போது உறுதிசெய்து, ஓட்டுநரிடம் பின்னர் செலுத்துங்கள்",amountDue:"செலுத்த வேண்டிய தொகை",confirmDemoBooking:"டெமோ முன்பதிவை உறுதிசெய்",paymentDisclaimer:"டெமோ மட்டுமே. பணமோ கட்டண விவரங்களோ சேகரிக்கப்படாது. உண்மையான முன்பதிவுகளுக்கு கட்டணச் சேவையை இணைக்கவும்.","360Preview":"360° கார் முன்னோட்டம்",dragCarHint:"இந்த டெமோ முன்னோட்டத்தைப் பார்க்க இடது அல்லது வலது பக்கம் இழுக்கவும்.",dragToRotate:"↔ சுழற்ற இழுக்கவும்",bookingConfirmed:"முன்பதிவு உறுதி · டெமோ",ticketHeading:"உங்கள் பயணம் தயாராகிறது!",ticketSubheading:"உங்கள் டெமோ டிக்கெட் தயார். பதிவிறக்கவும் அல்லது பகிரவும்.",downloadTicket:"↓ டிக்கெட்டைப் பதிவிறக்கு",shareWhatsapp:"WhatsApp-ல் பகிர் ↗",ticketDisclaimer:"இந்த மாதிரி டிக்கெட் பயணத்திற்கோ கட்டணத்திற்கோ செல்லாது.",perPerson:"/ நபருக்கு",days:"நாட்கள்",selectTrip:"பயணத்தைத் தேர்ந்தெடு",selectedTrip:"தேர்ந்தெடுக்கப்பட்டது",selectCar:"இந்தக் காரைத் தேர்ந்தெடு",selectedCar:"தேர்ந்தெடுக்கப்பட்டது",seasonSummer:"கோடைப் பயணம்",seasonMonsoon:"மழைக்கால மகிழ்ச்சி",seasonWinter:"குளிர்காலச் சூரியன்",seasonLabel:"தற்போதைய பருவம்",features:"இருக்கைகள் · AC · ஓட்டுநர்",estimateFor:"{days} நாட்கள் · {people} பயணிகள்",ticketRoute:"{from} → {to}",ticketTrip:"பயணம்",ticketCar:"கார்",ticketDate:"தேதி",ticketTravellers:"பயணிகள்",ticketPickup:"ஏறும் இடம்",ticketPayment:"கட்டணம்",ticketTotal:"மொத்தம்",ticketGuest:"பயணி",downloadFile:"roamly-demo-ticket.html"
+      },
+      hi: {
+        navTrips:"यात्राएँ",navCars:"कारें",navBooking:"बुकिंग कैसे करें",bookTrip:"यात्रा बुक करें",heroEyebrow:"आपकी अगली छुट्टी यहीं से शुरू",heroTitle:"खूबसूरत रास्तों<br>पर चलें।",heroCopy:"सोच-समझकर बनाई गई रोड ट्रिप, चुने हुए ठहराव और हर सफ़र के लिए सही कार। मौसम चुनें और अपनी यात्रा खोजें।",exploreTrips:"यात्राएँ देखें",findCar:"अपनी कार चुनें",statTrips:"चुनी हुई यात्राएँ",statRating:"यात्री रेटिंग",statSupport:"यात्रा सहायता",seasonalEscapes:"इस मौसम के लिए खास",packageHeading:"अपनी पसंद की यात्रा चुनें",packageSubheading:"मौसम के अनुसार यात्राएँ, आपके लिए तैयार।",theRightRide:"सही सवारी",carHeading:"अपनी यात्रा की साथी कार चुनें",carSubheading:"हर कार के साथ अनुभवी स्थानीय ड्राइवर।",carNote:"हर कार का 360° प्रीव्यू",almostThere:"बस कुछ कदम",bookingHeading:"आपकी अगली कहानी बुकिंग से शुरू होती है।",bookingCopy:"तारीखें चुनें और संपर्क की जानकारी दें। बाकी छोटी-बड़ी व्यवस्थाएँ हम संभाल लेंगे।",bookingTrust:"लचीली योजनाएँ · स्थानीय ड्राइवर · कोई छिपा शुल्क नहीं",fullName:"पूरा नाम",phoneNumber:"फ़ोन नंबर",startDate:"यात्रा शुरू होने की तारीख",travellers:"यात्री",pickupCity:"पिकअप शहर",estimatedTotal:"अनुमानित कुल",continuePayment:"भुगतान के लिए आगे बढ़ें →",demoPaymentNote:"सिर्फ़ डेमो — कोई वास्तविक भुगतान नहीं होगा।",footerDemo:"यात्रा बुकिंग डेमो.",whatsappHelp:"WhatsApp पर बात करें ↗",secureCheckout:"सुरक्षित चेकआउट",paymentHeading:"भुगतान का तरीका चुनें",paymentSubheading:"यह डेमो चेकआउट है। चुनने पर कोई शुल्क नहीं लगेगा।",upiHint:"GPay, PhonePe, Paytm (डेमो)",debitCreditCard:"डेबिट / क्रेडिट कार्ड",cardHint:"सिर्फ़ डेमो — कार्ड की जानकारी नहीं चाहिए",payOnTrip:"यात्रा के दौरान भुगतान",payOnTripHint:"अभी पुष्टि करें, ड्राइवर को बाद में भुगतान करें",amountDue:"देय राशि",confirmDemoBooking:"डेमो बुकिंग की पुष्टि करें",paymentDisclaimer:"सिर्फ़ डेमो। पैसे या भुगतान की जानकारी नहीं ली जाती। वास्तविक बुकिंग के लिए भुगतान सेवा जोड़ें।","360Preview":"360° कार प्रीव्यू",dragCarHint:"इस इंटरैक्टिव डेमो को देखने के लिए बाएँ या दाएँ खींचें।",dragToRotate:"↔ घुमाने के लिए खींचें",bookingConfirmed:"बुकिंग की पुष्टि · डेमो",ticketHeading:"आपकी यात्रा तैयार हो रही है!",ticketSubheading:"आपका डेमो टिकट तैयार है। डाउनलोड करें या यात्रा की जानकारी साझा करें।",downloadTicket:"↓ टिकट डाउनलोड करें",shareWhatsapp:"WhatsApp पर साझा करें ↗",ticketDisclaimer:"यह नमूना टिकट यात्रा या भुगतान के लिए मान्य नहीं है।",perPerson:"/ प्रति व्यक्ति",days:"दिन",selectTrip:"यात्रा चुनें",selectedTrip:"चुना गया",selectCar:"यह कार चुनें",selectedCar:"चुना गया",seasonSummer:"गर्मी की छुट्टी",seasonMonsoon:"मानसून का जादू",seasonWinter:"सर्दियों की धूप",seasonLabel:"वर्तमान मौसम",features:"सीटें · AC · ड्राइवर",estimateFor:"{days} दिन · {people} यात्री",ticketRoute:"{from} → {to}",ticketTrip:"यात्रा",ticketCar:"कार",ticketDate:"तारीख",ticketTravellers:"यात्री",ticketPickup:"पिकअप",ticketPayment:"भुगतान",ticketTotal:"कुल",ticketGuest:"यात्री",downloadFile:"roamly-demo-ticket.html"
+      }
+    };
+
+    const extraTranslations = {
+      en: {
+        introTagline:"A little more road. A lot more wonder.",skipIntro:"Skip intro",navRoutes:"Routes",navSupport:"Help",navContact:"Contact",festivalEyebrow:"TRAVEL WITH THE CELEBRATIONS",festivalHeading:"Make a festival part of the journey",festivalSubheading:"Local traditions, easy road trips, and a little more time together.",festivalDateNote:"Festival dates vary each year",
+        coorgStory:"Slow mornings in the hills, coffee-country stops, and time for a proper Kodava meal.",coorgIncludes:"3 days · stay, breakfast & local driver",ootyStory:"A cool-weather rail-side escape with tea gardens and unhurried viewpoints.",ootyIncludes:"2 days · stay, breakfast & local driver",munnarStory:"Tea trails, misty lookouts, and a relaxed drive through the Western Ghats.",munnarIncludes:"3 days · stay, breakfast & local driver",
+        pongalTitle:"Pongal in Madurai",pongalWhen:"MID-JANUARY · HARVEST SEASON",pongalStory:"Visit the Meenakshi temple town, taste festive sakkarai pongal, and see the harvest season up close.",pongalIncludes:"3 days · guided town walk & local breakfast",
+        onamTitle:"Onam by the backwaters",onamWhen:"AUG / SEP · DATES VARY",onamStory:"Ease into Kerala’s harvest celebrations with a village-side stay and a gentle backwater day.",onamIncludes:"3 days · backwater visit & breakfast",
+        diwaliTitle:"Diwali in Jaipur",diwaliWhen:"OCT / NOV · DATES VARY",diwaliStory:"Explore Jaipur’s old lanes by day and take in the festive lights after sunset.",diwaliIncludes:"4 days · heritage walk & breakfast",
+        selectFestival:"Choose this festival trip",regionalDrivesEyebrow:"EAST COAST & GODAVARI COUNTRY",regionalDrivesHeading:"Regional drives, made easy",regionalDrivesCopy:"Choose a route to see an estimated distance-based car fare.",distanceEstimateTag:"Approx. road distance · one way",journeyType:"Journey type",oneWay:"One way",roundTrip:"Round trip",routeQuoteTitle:"Distance-based fare estimate",chooseRouteHint:"Choose one of the regional routes above to see the distance and vehicle fare.",packageQuoteHint:"Choose a regional route above for distance-based pricing, or continue with a curated package.",routeFareDetails:"{distance} km {direction} × {rate}/km · {car}",roundTripWord:"round trip",oneWayWord:"one way",routeSelect:"Choose route",routeSelected:"Selected",routePriceFrom:"Car estimate",perKm:"/ km",distanceDisclaimer:"Distances and per-km fares are indicative demo estimates. Actual route, tolls and final quote may vary.",routeFareIncludes:"Car with driver only; stays, meals, tolls and parking are not included.",distanceLabel:"Distance",carFareLabel:"Estimated car fare",packageFareLabel:"Package",roundTripFareNote:"Return journey included",contactNamePlaceholder:"Your name",contactPhonePlaceholder:"Phone number (optional)",contactMessagePlaceholder:"How can we help with your trip?",sendWhatsappMessage:"Send via WhatsApp ↗",contactMessageIntro:"Hi Roamly, I need help planning a trip.",contactDemoNote:"This demo opens WhatsApp with your message. Add your business WhatsApp number for direct enquiries.",
+        routeKakinadaRjy:"Kakinada → Rajahmundry",routeKakinadaRjyDesc:"A relaxed Godavari-side drive for temple visits, riverside stops and an easy day out.",routeAmalapuramVizag:"Amalapuram → Visakhapatnam",routeAmalapuramVizagDesc:"Coastal delta to the port city, with a comfortable road journey and room for a stop on the way.",routeRjyAraku:"Rajahmundry → Araku Valley",routeRjyArakuDesc:"A longer getaway from the Godavari region into the Eastern Ghats and coffee country.",routeVizagAraku:"Visakhapatnam → Araku Valley",routeVizagArakuDesc:"Hill roads, valley views and a classic two-day break from the coast.",routeKakinadaVizag:"Kakinada → Visakhapatnam",routeKakinadaVizagDesc:"Connect the Godavari coast with Vizag for a city break, beach time or onward travel.",
+        cityKakinada:"Kakinada",cityRajahmundry:"Rajahmundry",cityAmalapuram:"Amalapuram",cityVisakhapatnam:"Visakhapatnam",cityAraku:"Araku Valley",oneWayTicket:"One way",roundTripTicket:"Round trip",ticketDistance:"Distance"
+      },
+      te: {
+        introTagline:"ఇంకొంచెం దారి. ఎన్నో అద్భుతాలు.",skipIntro:"ఇంట్రో దాటవేయండి",navRoutes:"రూట్లు",navSupport:"సహాయం",navContact:"సంప్రదించండి",festivalEyebrow:"పండుగలతో కలిసి ప్రయాణించండి",festivalHeading:"పండుగను మీ ప్రయాణంలో భాగం చేసుకోండి",festivalSubheading:"స్థానిక సంప్రదాయాలు, సులభమైన రోడ్ ట్రిప్స్, కలిసి గడిపే మరికొంత సమయం.",festivalDateNote:"పండుగ తేదీలు ప్రతి సంవత్సరం మారవచ్చు",
+        coorgStory:"కొండల్లో నిదానమైన ఉదయాలు, కాఫీ తోటల సందర్శన, కొడవ వంటకాల రుచి.",coorgIncludes:"3 రోజులు · బస, అల్పాహారం, స్థానిక డ్రైవర్",ootyStory:"తేయాకు తోటలు, చల్లని వాతావరణం, హాయిగా ఆస్వాదించే కొండ దృశ్యాలు.",ootyIncludes:"2 రోజులు · బస, అల్పాహారం, స్థానిక డ్రైవర్",munnarStory:"తేయాకు దారులు, పొగమంచు కొండలు, పశ్చిమ కనుమల్లో ప్రశాంతమైన ప్రయాణం.",munnarIncludes:"3 రోజులు · బస, అల్పాహారం, స్థానిక డ్రైవర్",
+        pongalTitle:"మదురైలో పొంగల్",pongalWhen:"జనవరి మధ్యలో · పంటల పండుగ",pongalStory:"మీనాక్షి ఆలయ నగరాన్ని చూడండి, పండుగ పొంగల్ రుచి చూడండి, పంటల వేడుకల్లో భాగం అవండి.",pongalIncludes:"3 రోజులు · స్థానిక నడక యాత్ర, అల్పాహారం",
+        onamTitle:"బ్యాక్‌వాటర్స్ దగ్గర ఓణం",onamWhen:"ఆగస్టు / సెప్టెంబర్ · తేదీలు మారవచ్చు",onamStory:"గ్రామీణ బసతో కేరళ పంటల పండుగను ఆస్వాదించండి; బ్యాక్‌వాటర్స్‌లో హాయిగా ఒక రోజు గడపండి.",onamIncludes:"3 రోజులు · బ్యాక్‌వాటర్స్ సందర్శన, అల్పాహారం",
+        diwaliTitle:"జైపూర్‌లో దీపావళి",diwaliWhen:"అక్టోబర్ / నవంబర్ · తేదీలు మారవచ్చు",diwaliStory:"పగలు జైపూర్ పాత వీధుల్లో తిరిగి, సాయంత్రం పండుగ దీపాల వెలుగును ఆస్వాదించండి.",diwaliIncludes:"4 రోజులు · వారసత్వ నడక యాత్ర, అల్పాహారం",
+        selectFestival:"ఈ పండుగ ట్రిప్ ఎంచుకోండి",regionalDrivesEyebrow:"తీరప్రాంతం & గోదావరి ప్రాంతం",regionalDrivesHeading:"ప్రాంతీయ రోడ్ ట్రిప్స్",regionalDrivesCopy:"రూట్ ఎంచుకుంటే దూరం ఆధారంగా అంచనా కారు ధర కనిపిస్తుంది.",distanceEstimateTag:"సుమారు రోడ్డు దూరం · ఒక వైపు",journeyType:"ప్రయాణ విధానం",oneWay:"ఒక వైపు",roundTrip:"వెళ్లి రావడం",routeQuoteTitle:"దూరం ఆధారంగా అంచనా ధర",chooseRouteHint:"దూరం, కారు ధర చూడటానికి పైన ఉన్న ప్రాంతీయ రూట్‌ను ఎంచుకోండి.",packageQuoteHint:"దూరం ఆధారిత ధర కోసం పైన రూట్ ఎంచుకోండి లేదా ట్రావెల్ ప్యాకేజీతో కొనసాగండి.",routeFareDetails:"{distance} కి.మీ. {direction} × {rate}/కి.మీ. · {car}",roundTripWord:"వెళ్లి రావడం",oneWayWord:"ఒక వైపు",routeSelect:"రూట్ ఎంచుకోండి",routeSelected:"ఎంచుకున్నారు",routePriceFrom:"కారు అంచనా",perKm:"/ కి.మీ.",distanceDisclaimer:"దూరం, ప్రతి కి.మీ. ధర డెమో అంచనా మాత్రమే. అసలు రూట్, టోల్, తుది ధర మారవచ్చు.",routeFareIncludes:"డ్రైవర్‌తో కూడిన కారు మాత్రమే; బస, భోజనం, టోల్, పార్కింగ్ ఇందులో లేవు.",distanceLabel:"దూరం",carFareLabel:"అంచనా కారు ధర",packageFareLabel:"ప్యాకేజీ",roundTripFareNote:"వెళ్లి వచ్చే ప్రయాణం కలిపి",contactNamePlaceholder:"మీ పేరు",contactPhonePlaceholder:"ఫోన్ నంబర్ (ఐచ్ఛికం)",contactMessagePlaceholder:"మీ ప్రయాణానికి ఎలా సహాయం చేయాలి?",sendWhatsappMessage:"WhatsApp ద్వారా పంపండి ↗",contactMessageIntro:"నమస్కారం Roamly, నా ప్రయాణ ప్రణాళికలో సహాయం కావాలి.",contactDemoNote:"ఈ డెమో మీ సందేశంతో WhatsApp తెరుస్తుంది. నేరుగా సంప్రదింపుల కోసం మీ వ్యాపార WhatsApp నంబర్ జోడించండి.",
+        routeKakinadaRjy:"కాకినాడ → రాజమండ్రి",routeKakinadaRjyDesc:"దేవాలయ దర్శనాలు, గోదావరి ఒడ్డున విరామాలతో హాయిగా ఒక రోజు ప్రయాణం.",routeAmalapuramVizag:"అమలాపురం → విశాఖపట్నం",routeAmalapuramVizagDesc:"తీర డెల్టా నుంచి విశాఖ నగరానికి సౌకర్యవంతమైన ప్రయాణం; మధ్యలో ఆగేందుకు సమయం కూడా ఉంటుంది.",routeRjyAraku:"రాజమండ్రి → అరకు లోయ",routeRjyArakuDesc:"గోదావరి ప్రాంతం నుంచి తూర్పు కనుమలు, కాఫీ తోటల వరకు సుదీర్ఘ విహారం.",routeVizagAraku:"విశాఖపట్నం → అరకు లోయ",routeVizagArakuDesc:"కొండదారులు, లోయల దృశ్యాలు, తీరప్రాంతం నుంచి చక్కని రెండు రోజుల విహారం.",routeKakinadaVizag:"కాకినాడ → విశాఖపట్నం",routeKakinadaVizagDesc:"గోదావరి తీరాన్ని విశాఖతో కలిపే ప్రయాణం; నగర విహారం లేదా ముందుకు వెళ్లేందుకు అనుకూలం.",
+        cityKakinada:"కాకినాడ",cityRajahmundry:"రాజమండ్రి",cityAmalapuram:"అమలాపురం",cityVisakhapatnam:"విశాఖపట్నం",cityAraku:"అరకు లోయ",oneWayTicket:"ఒక వైపు",roundTripTicket:"వెళ్లి రావడం",ticketDistance:"దూరం"
+      },
+      ta: {
+        introTagline:"இன்னும் கொஞ்சம் சாலைப் பயணம். நிறைய வியப்புகள்.",skipIntro:"அறிமுகத்தைத் தவிர்",navRoutes:"வழித்தடங்கள்",navSupport:"உதவி",navContact:"தொடர்பு",festivalEyebrow:"கொண்டாட்டங்களுடன் பயணம் செய்யுங்கள்",festivalHeading:"பயணத்தில் ஒரு திருவிழாவையும் சேர்த்துக்கொள்ளுங்கள்",festivalSubheading:"உள்ளூர் மரபுகள், சுலபமான சாலைப் பயணங்கள், ஒன்றாகச் செலவிட இன்னும் கொஞ்சம் நேரம்.",festivalDateNote:"திருவிழா தேதிகள் ஆண்டுதோறும் மாறலாம்",
+        coorgStory:"மலைப்பகுதியில் மெதுவான காலை, காபித் தோட்டப் பாதைகள், உள்ளூர் கொடவ உணவு.",coorgIncludes:"3 நாட்கள் · தங்குமிடம், காலை உணவு, உள்ளூர் ஓட்டுநர்",ootyStory:"தேயிலைத் தோட்டங்களும், குளுமையான வானிலையும், நிதானமான மலைக் காட்சிகளும்.",ootyIncludes:"2 நாட்கள் · தங்குமிடம், காலை உணவு, உள்ளூர் ஓட்டுநர்",munnarStory:"தேயிலைப் பாதைகள், பனிமூடிய காட்சிகள், மேற்குத் தொடர்ச்சி மலைகளில் அமைதியான பயணம்.",munnarIncludes:"3 நாட்கள் · தங்குமிடம், காலை உணவு, உள்ளூர் ஓட்டுநர்",
+        pongalTitle:"மதுரையில் பொங்கல்",pongalWhen:"ஜனவரி நடுப்பகுதி · அறுவடைத் திருநாள்",pongalStory:"மீனாட்சி கோயில் நகரைச் சுற்றிப் பார்த்து, பண்டிகை சர்க்கரைப் பொங்கலைச் சுவைத்து, அறுவடை மகிழ்வில் கலந்துகொள்ளுங்கள்.",pongalIncludes:"3 நாட்கள் · உள்ளூர் நடைசுற்றுலா, காலை உணவு",
+        onamTitle:"உப்பங்கழி அருகே ஓணம்",onamWhen:"ஆகஸ்ட் / செப்டம்பர் · தேதி மாறலாம்",onamStory:"கிராமப்புறத் தங்குமிடத்துடன் கேரளத்தின் அறுவடைத் திருவிழாவை அனுபவித்து, உப்பங்கழியில் ஒரு நிதானமான நாளைக் கழியுங்கள்.",onamIncludes:"3 நாட்கள் · உப்பங்கழிச் சுற்றுலா, காலை உணவு",
+        diwaliTitle:"ஜெய்ப்பூரில் தீபாவளி",diwaliWhen:"அக்டோபர் / நவம்பர் · தேதி மாறலாம்",diwaliStory:"பகலில் ஜெய்ப்பூரின் பழைய வீதிகளைச் சுற்றிப் பார்த்து, மாலையில் பண்டிகை விளக்குகளை ரசிக்கலாம்.",diwaliIncludes:"4 நாட்கள் · பாரம்பரிய நடைசுற்றுலா, காலை உணவு",
+        selectFestival:"இந்தத் திருவிழாப் பயணத்தைத் தேர்ந்தெடு",regionalDrivesEyebrow:"கிழக்குக் கடற்கரை & கோதாவரி",regionalDrivesHeading:"பிராந்தியச் சாலைப் பயணங்கள்",regionalDrivesCopy:"வழித்தடத்தைத் தேர்ந்தெடுத்தால் தூரத்தின் அடிப்படையிலான கார் கட்டண மதிப்பீடு தெரியும்.",distanceEstimateTag:"தோராயமான சாலைத் தூரம் · ஒரு வழி",journeyType:"பயண வகை",oneWay:"ஒரு வழி",roundTrip:"சென்று திரும்ப",routeQuoteTitle:"தூர அடிப்படையிலான கட்டண மதிப்பீடு",chooseRouteHint:"தூரம் மற்றும் வாகனக் கட்டணத்தைப் பார்க்க மேலே உள்ள வழித்தடத்தைத் தேர்ந்தெடுங்கள்.",packageQuoteHint:"தூர அடிப்படையிலான கட்டணத்திற்கு மேலே ஒரு வழித்தடத்தைத் தேர்ந்தெடுக்கவும்; அல்லது பயணத் திட்டத்துடன் தொடரவும்.",routeFareDetails:"{distance} கி.மீ. {direction} × {rate}/கி.மீ. · {car}",roundTripWord:"சென்று திரும்ப",oneWayWord:"ஒரு வழி",routeSelect:"வழித்தடத்தைத் தேர்ந்தெடு",routeSelected:"தேர்ந்தெடுக்கப்பட்டது",routePriceFrom:"கார் மதிப்பீடு",perKm:"/ கி.மீ.",distanceDisclaimer:"தூரமும் கி.மீ. கட்டணமும் டெமோ மதிப்பீடுகள். உண்மையான வழி, சுங்கக் கட்டணம் மற்றும் இறுதித் தொகை மாறலாம்.",routeFareIncludes:"ஓட்டுநருடன் கார் மட்டும்; தங்குமிடம், உணவு, சுங்கம், பார்க்கிங் சேராது.",distanceLabel:"தூரம்",carFareLabel:"மதிப்பிடப்பட்ட கார் கட்டணம்",packageFareLabel:"பயணத் திட்டம்",roundTripFareNote:"சென்று திரும்பும் பயணம் சேர்க்கப்பட்டுள்ளது",contactNamePlaceholder:"உங்கள் பெயர்",contactPhonePlaceholder:"தொலைபேசி எண் (விருப்பம்)",contactMessagePlaceholder:"உங்கள் பயணத்திற்கு எப்படித் துணைபுரியலாம்?",sendWhatsappMessage:"WhatsApp வழியாக அனுப்பு ↗",contactMessageIntro:"வணக்கம் Roamly, எனது பயணத்தைத் திட்டமிட உதவி தேவை.",contactDemoNote:"இந்த டெமோ உங்கள் செய்தியுடன் WhatsApp-ஐத் திறக்கும். நேரடி விசாரணைகளுக்கு உங்கள் நிறுவன WhatsApp எண்ணைச் சேர்க்கவும்.",
+        routeKakinadaRjy:"காக்கிநாடா → ராஜமுந்திரி",routeKakinadaRjyDesc:"கோதாவரிக் கரையோரம் கோயில்கள், ஆற்றங்கரை நிறுத்தங்கள் என நிதானமான ஒரு நாள் பயணம்.",routeAmalapuramVizag:"அமலாபுரம் → விசாகப்பட்டினம்",routeAmalapuramVizagDesc:"கடலோர டெல்டாவிலிருந்து விசாகப்பட்டினம் வரை, வழியில் ஓய்வெடுக்க நேரமுள்ள வசதியான பயணம்.",routeRjyAraku:"ராஜமுந்திரி → அரக்கு பள்ளத்தாக்கு",routeRjyArakuDesc:"கோதாவரிப் பகுதியிலிருந்து கிழக்குத் தொடர்ச்சி மலைகள் மற்றும் காபித் தோட்டங்கள் வரை நீண்ட பயணம்.",routeVizagAraku:"விசாகப்பட்டினம் → அரக்கு பள்ளத்தாக்கு",routeVizagArakuDesc:"மலைச் சாலைகள், பள்ளத்தாக்குக் காட்சிகள் எனக் கடற்கரையிலிருந்து சிறந்த இரண்டு நாள் பயணம்.",routeKakinadaVizag:"காக்கிநாடா → விசாகப்பட்டினம்",routeKakinadaVizagDesc:"கோதாவரிக் கடற்கரையையும் விசாகப்பட்டினத்தையும் இணைக்கும் பயணம்; நகரச் சுற்றுலா அல்லது அடுத்த பயணத்திற்கு ஏற்றது.",
+        cityKakinada:"காக்கிநாடா",cityRajahmundry:"ராஜமுந்திரி",cityAmalapuram:"அமலாபுரம்",cityVisakhapatnam:"விசாகப்பட்டினம்",cityAraku:"அரக்கு பள்ளத்தாக்கு",oneWayTicket:"ஒரு வழி",roundTripTicket:"சென்று திரும்ப",ticketDistance:"தூரம்"
+      },
+      hi: {
+        introTagline:"थोड़ा और सफ़र। ढेर सारा रोमांच।",skipIntro:"इंट्रो छोड़ें",navRoutes:"रूट",navSupport:"सहायता",navContact:"संपर्क",festivalEyebrow:"जश्न के साथ सफ़र",festivalHeading:"यात्रा में एक त्योहार भी जोड़ें",festivalSubheading:"स्थानीय परंपराएँ, आसान रोड ट्रिप और साथ बिताने के लिए थोड़ा और समय।",festivalDateNote:"त्योहारों की तारीख़ हर साल बदल सकती है",
+        coorgStory:"पहाड़ियों में सुकून भरी सुबह, कॉफ़ी बागानों के पड़ाव और कोडवा खाने का स्वाद।",coorgIncludes:"3 दिन · ठहराव, नाश्ता और स्थानीय ड्राइवर",ootyStory:"चाय बागान, ठंडा मौसम और पहाड़ी नज़ारों के लिए भरपूर समय।",ootyIncludes:"2 दिन · ठहराव, नाश्ता और स्थानीय ड्राइवर",munnarStory:"चाय के रास्ते, धुंधले नज़ारे और पश्चिमी घाटों में आरामदायक सफ़र।",munnarIncludes:"3 दिन · ठहराव, नाश्ता और स्थानीय ड्राइवर",
+        pongalTitle:"मदुरै में पोंगल",pongalWhen:"जनवरी मध्य · फसल का त्योहार",pongalStory:"मीनाक्षी मंदिर के शहर को देखें, त्योहार का सक्करै पोंगल चखें और फसल के जश्न को करीब से जानें।",pongalIncludes:"3 दिन · स्थानीय पैदल भ्रमण और नाश्ता",
+        onamTitle:"बैकवॉटर के पास ओणम",onamWhen:"अगस्त / सितंबर · तारीख़ बदलती है",onamStory:"गाँव के पास ठहरकर केरल के फसल उत्सव का आनंद लें और बैकवॉटर में एक आरामदेह दिन बिताएँ।",onamIncludes:"3 दिन · बैकवॉटर भ्रमण और नाश्ता",
+        diwaliTitle:"जयपुर में दिवाली",diwaliWhen:"अक्टूबर / नवंबर · तारीख़ बदलती है",diwaliStory:"दिन में जयपुर की पुरानी गलियों में घूमें और सूर्यास्त के बाद त्योहार की रोशनी देखें।",diwaliIncludes:"4 दिन · विरासत भ्रमण और नाश्ता",
+        selectFestival:"यह त्योहार यात्रा चुनें",regionalDrivesEyebrow:"पूर्वी तट और गोदावरी क्षेत्र",regionalDrivesHeading:"आसान क्षेत्रीय रोड ट्रिप",regionalDrivesCopy:"रूट चुनें और दूरी के आधार पर कार का अनुमानित किराया देखें।",distanceEstimateTag:"अनुमानित सड़क दूरी · एक तरफ़",journeyType:"यात्रा का प्रकार",oneWay:"एक तरफ़",roundTrip:"आना-जाना",routeQuoteTitle:"दूरी के आधार पर अनुमानित किराया",chooseRouteHint:"दूरी और गाड़ी का किराया देखने के लिए ऊपर का क्षेत्रीय रूट चुनें।",packageQuoteHint:"दूरी आधारित किराये के लिए ऊपर कोई रूट चुनें, या यात्रा पैकेज के साथ आगे बढ़ें।",routeFareDetails:"{distance} कि.मी. {direction} × {rate}/कि.मी. · {car}",roundTripWord:"आना-जाना",oneWayWord:"एक तरफ़",routeSelect:"रूट चुनें",routeSelected:"चुना गया",routePriceFrom:"कार का अनुमान",perKm:"/ कि.मी.",distanceDisclaimer:"दूरी और प्रति कि.मी. किराया डेमो अनुमान हैं। असली रास्ता, टोल और अंतिम किराया अलग हो सकता है।",routeFareIncludes:"ड्राइवर सहित कार का किराया; ठहराव, भोजन, टोल और पार्किंग शामिल नहीं हैं।",distanceLabel:"दूरी",carFareLabel:"अनुमानित कार किराया",packageFareLabel:"पैकेज",roundTripFareNote:"आने-जाने का सफ़र शामिल",contactNamePlaceholder:"आपका नाम",contactPhonePlaceholder:"फ़ोन नंबर (वैकल्पिक)",contactMessagePlaceholder:"यात्रा के लिए हम कैसे मदद करें?",sendWhatsappMessage:"WhatsApp से भेजें ↗",contactMessageIntro:"नमस्ते Roamly, मुझे यात्रा की योजना बनाने में मदद चाहिए।",contactDemoNote:"यह डेमो आपके संदेश के साथ WhatsApp खोलेगा। सीधे पूछताछ के लिए अपना बिज़नेस WhatsApp नंबर जोड़ें।",
+        routeKakinadaRjy:"काकीनाडा → राजमहेंद्रवरम",routeKakinadaRjyDesc:"गोदावरी के पास मंदिरों, नदी किनारे पड़ावों और आरामदेह दिन की यात्रा।",routeAmalapuramVizag:"अमलापुरम → विशाखापत्तनम",routeAmalapuramVizagDesc:"तटीय डेल्टा से विशाखापत्तनम तक आरामदायक सड़क यात्रा, रास्ते में रुकने का समय भी।",routeRjyAraku:"राजमहेंद्रवरम → अराकू घाटी",routeRjyArakuDesc:"गोदावरी क्षेत्र से पूर्वी घाट और कॉफ़ी के बागानों तक एक लंबा खुशनुमा सफ़र।",routeVizagAraku:"विशाखापत्तनम → अराकू घाटी",routeVizagArakuDesc:"पहाड़ी रास्ते, घाटी के नज़ारे और तट से दो दिन की बेहतरीन छुट्टी।",routeKakinadaVizag:"काकीनाडा → विशाखापत्तनम",routeKakinadaVizagDesc:"गोदावरी तट को विज़ाग से जोड़ने वाला रास्ता—शहर घूमने, समुद्र तट या आगे की यात्रा के लिए।",
+        cityKakinada:"काकीनाडा",cityRajahmundry:"राजमहेंद्रवरम",cityAmalapuram:"अमलापुरम",cityVisakhapatnam:"विशाखापत्तनम",cityAraku:"अराकू घाटी",oneWayTicket:"एक तरफ़",roundTripTicket:"आना-जाना",ticketDistance:"दूरी"
+      }
+    };
+    const supportTranslations = {
+      en: {
+        supportEyebrow:"A REAL PERSON, WHEN YOU NEED ONE",supportHeading:"A little help goes a long way",supportSubheading:"Questions before you book? We’ve gathered the useful bits here.",supportCardEyebrow:"TRIP PLANNING HELP",supportCardTitle:"Not sure which trip fits?",supportCardCopy:"Tell us your dates, group size, and the kind of break you’re after. We’ll help you compare the options before you decide.",supportWhatsapp:"Ask on WhatsApp ↗",supportBook:"Start a booking",supportAvailability:"Sample WhatsApp link for this demo. Add your travel team’s number before launch.",faqEyebrow:"GOOD TO KNOW",faqHeading:"A few quick answers",faqDatesQuestion:"Do festival dates change every year?",faqDatesAnswer:"Yes. Some festivals follow the lunar calendar. Treat the month shown as a guide and confirm the exact dates before booking.",faqPriceQuestion:"How is the trip estimate calculated?",faqPriceAnswer:"Curated packages use a per-person package price plus the selected car by day. Regional drives use approximate road kilometres × the selected car’s per-kilometre rate; return trips count both ways. Demo estimate only; tolls and parking may vary.",faqPaymentQuestion:"Can I make a real payment here?",faqPaymentAnswer:"No. This is a front-end demo. Payment choices only preview checkout; no money or card details are collected."
+      },
+      te: {
+        supportEyebrow:"అవసరమైనప్పుడు మీకు తోడుగా",supportHeading:"చిన్న సహాయం ఎంతో ఉపయోగపడుతుంది",supportSubheading:"బుకింగ్‌కు ముందు సందేహాలున్నాయా? అవసరమైన వివరాలు ఇక్కడ ఉన్నాయి.",supportCardEyebrow:"ప్రయాణ ప్రణాళిక సహాయం",supportCardTitle:"ఏ ట్రిప్ ఎంచుకోవాలో తెలియదా?",supportCardCopy:"మీ తేదీలు, బృందంలోని వారి సంఖ్య, ఎలాంటి విరామం కావాలో చెప్పండి. నిర్ణయం తీసుకునే ముందు ఎంపికలను పోల్చడంలో సహాయం చేస్తాం.",supportWhatsapp:"WhatsAppలో అడగండి ↗",supportBook:"బుకింగ్ ప్రారంభించండి",supportAvailability:"ఈ డెమో కోసం నమూనా WhatsApp లింక్. వెబ్‌సైట్ ప్రారంభించే ముందు మీ ప్రయాణ బృందం నంబర్ జోడించండి.",faqEyebrow:"తెలుసుకోవాల్సినవి",faqHeading:"కొన్ని చిన్న సమాధానాలు",faqDatesQuestion:"పండుగ తేదీలు ప్రతి సంవత్సరం మారతాయా?",faqDatesAnswer:"అవును. కొన్ని పండుగలు చాంద్రమానాన్ని అనుసరిస్తాయి. ఇక్కడి నెలను సూచనగా తీసుకుని, బుక్ చేసే ముందు ఖచ్చితమైన తేదీని నిర్ధారించుకోండి.",faqPriceQuestion:"ప్రయాణ అంచనా ధర ఎలా లెక్కిస్తారు?",faqPriceAnswer:"ప్రయాణ ప్యాకేజీలకు ఒక్కొక్కరి ధరతో పాటు ఎంచుకున్న కారుకు రోజువారీ ధర కలుస్తుంది. ప్రాంతీయ ప్రయాణాలకు సుమారు రోడ్డు కిలోమీటర్లు × కారు ప్రతి కి.మీ. ధర లెక్కిస్తాం; వెళ్లి వచ్చే ప్రయాణానికి రెండు వైపుల దూరం కలుస్తుంది. ఇవి డెమో అంచనాలు మాత్రమే; టోల్, పార్కింగ్ మారవచ్చు.",faqPaymentQuestion:"ఇక్కడ నిజమైన చెల్లింపు చేయవచ్చా?",faqPaymentAnswer:"లేదు. ఇది వెబ్‌సైట్ డెమో మాత్రమే. చెల్లింపు ఎంపికలు చెక్అవుట్‌ను చూపిస్తాయి; డబ్బు లేదా కార్డు వివరాలు సేకరించము."
+      },
+      ta: {
+        supportEyebrow:"தேவைப்படும்போது நேரடி உதவி",supportHeading:"சிறிய உதவி பெரிய மாற்றத்தைத் தரும்",supportSubheading:"முன்பதிவுக்கு முன் கேள்விகள் உள்ளனவா? தேவையான விவரங்களை இங்கே தொகுத்துள்ளோம்.",supportCardEyebrow:"பயணத் திட்ட உதவி",supportCardTitle:"எந்தப் பயணத்தைத் தேர்ந்தெடுப்பது?",supportCardCopy:"தேதிகள், குழுவின் அளவு, நீங்கள் எதிர்பார்க்கும் விடுமுறை வகையைச் சொல்லுங்கள். முடிவெடுப்பதற்கு முன் விருப்பங்களை ஒப்பிட உதவுகிறோம்.",supportWhatsapp:"WhatsApp-ல் கேளுங்கள் ↗",supportBook:"முன்பதிவைத் தொடங்கு",supportAvailability:"இந்த டெமோவிற்கான மாதிரி WhatsApp இணைப்பு. தளத்தைத் தொடங்கும் முன் உங்கள் பயணக் குழுவின் எண்ணைச் சேர்க்கவும்.",faqEyebrow:"தெரிந்துகொள்ள வேண்டியவை",faqHeading:"சில விரைவான பதில்கள்",faqDatesQuestion:"திருவிழா தேதிகள் ஆண்டுதோறும் மாறுமா?",faqDatesAnswer:"ஆம். சில திருவிழாக்கள் சந்திர நாட்காட்டியைப் பின்பற்றுகின்றன. காட்டப்பட்டுள்ள மாதத்தை வழிகாட்டியாகக் கொண்டு, முன்பதிவுக்கு முன் சரியான தேதியை உறுதிசெய்யுங்கள்.",faqPriceQuestion:"பயணக் கட்டணம் எப்படிக் கணக்கிடப்படுகிறது?",faqPriceAnswer:"தேர்ந்தெடுத்த பயணத் திட்டத்தின் நபருக்கான தொகையுடன் காரின் தினசரிக் கட்டணம் சேர்க்கப்படும். பிராந்தியப் பயணங்களுக்கு தோராயமான சாலை கி.மீ. × காரின் கி.மீ. கட்டணம் கணக்கிடப்படும்; சென்று திரும்பும் பயணத்தில் இரு வழித் தூரமும் சேரும். இது டெமோ மதிப்பீடு; சுங்கம் மற்றும் பார்க்கிங் மாறலாம்.",faqPaymentQuestion:"இங்கே உண்மையாகப் பணம் செலுத்தலாமா?",faqPaymentAnswer:"இல்லை. இது இணையதள டெமோ. கட்டண விருப்பங்கள் செக்அவுட்டை மட்டும் காட்டும்; பணமோ அட்டை விவரங்களோ சேகரிக்கப்படாது."
+      },
+      hi: {
+        supportEyebrow:"ज़रूरत पड़ने पर, एक असली इंसान",supportHeading:"थोड़ी मदद बहुत काम आती है",supportSubheading:"बुकिंग से पहले कोई सवाल है? ज़रूरी जानकारी हमने यहाँ रखी है।",supportCardEyebrow:"यात्रा योजना में मदद",supportCardTitle:"समझ नहीं आ रहा कौन-सी यात्रा चुनें?",supportCardCopy:"अपनी तारीख़ें, समूह का आकार और छुट्टी की पसंद बताएँ। फ़ैसला करने से पहले विकल्पों की तुलना में हम मदद करेंगे।",supportWhatsapp:"WhatsApp पर पूछें ↗",supportBook:"बुकिंग शुरू करें",supportAvailability:"इस डेमो के लिए नमूना WhatsApp लिंक। लाइव करने से पहले अपनी यात्रा टीम का नंबर जोड़ें।",faqEyebrow:"जानने योग्य बातें",faqHeading:"कुछ छोटे जवाब",faqDatesQuestion:"क्या त्योहारों की तारीख़ हर साल बदलती है?",faqDatesAnswer:"हाँ। कुछ त्योहार चंद्र कैलेंडर के अनुसार होते हैं। दिखाए गए महीने को संकेत मानें और बुकिंग से पहले सही तारीख़ की पुष्टि करें।",faqPriceQuestion:"यात्रा का अनुमानित किराया कैसे तय होता है?",faqPriceAnswer:"चुने गए पैकेज में प्रति व्यक्ति कीमत और कार का दैनिक किराया शामिल है। क्षेत्रीय यात्रा का अनुमान सड़क के कि.मी. × कार की प्रति कि.मी. दर से है; आने-जाने में दोनों तरफ़ की दूरी जुड़ती है। यह डेमो अनुमान है; टोल और पार्किंग अलग हो सकते हैं।",faqPaymentQuestion:"क्या यहाँ असली भुगतान कर सकते हैं?",faqPaymentAnswer:"नहीं। यह सिर्फ़ वेबसाइट डेमो है। भुगतान के विकल्प केवल चेकआउट दिखाते हैं; पैसे या कार्ड की जानकारी नहीं ली जाती।"
+      }
+    };
+    const formTranslations = {
+      en:{pickupCityPlaceholder:"e.g. Chennai"},
+      te:{pickupCityPlaceholder:"ఉదా. విజయవాడ"},
+      ta:{pickupCityPlaceholder:"எ.கா. சென்னை"},
+      hi:{pickupCityPlaceholder:"जैसे, चेन्नई"}
+    };
+    Object.keys(extraTranslations).forEach(language=>Object.assign(translations[language],extraTranslations[language],supportTranslations[language],formTranslations[language]));
+
+    Object.assign(translations.en,{introTagline:"WELCOME TO ROAMLY TRAVELS",heroTitle:"Welcome to<br>Roamly Travels.",heroEyebrow:"COMFORTABLE JOURNEYS, THOUGHTFULLY ARRANGED"});
+    Object.assign(translations.te,{introTagline:"ROAMLY TRAVELS‌కు స్వాగతం",heroTitle:"Roamly Travels‌కు<br>స్వాగతం.",heroEyebrow:"మీ ప్రయాణం సౌకర్యంగా, జాగ్రత్తగా"});
+    Object.assign(translations.ta,{introTagline:"ROAMLY TRAVELS-க்கு வரவேற்கிறோம்",heroTitle:"Roamly Travels-க்கு<br>வரவேற்கிறோம்.",heroEyebrow:"உங்கள் பயணம், வசதியாகவும் கவனமாகவும்"});
+    Object.assign(translations.hi,{introTagline:"ROAMLY TRAVELS में आपका स्वागत है",heroTitle:"Roamly Travels में<br>आपका स्वागत है.",heroEyebrow:"आरामदायक सफ़र, सोच-समझकर तैयार"});
+
+    const packages = [
+      {id:"coorg",season:"monsoon",title:"Misty Coorg Escape",storyKey:"coorgStory",includesKey:"coorgIncludes",destination:"Coorg, Karnataka",days:3,price:8499,image:"https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=80"},
+      {id:"ooty",season:"summer",title:"Ooty & Nilgiri Trails",storyKey:"ootyStory",includesKey:"ootyIncludes",destination:"Ooty, Tamil Nadu",days:2,price:6299,image:"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"},
+      {id:"munnar",season:"winter",title:"Munnar Tea Country",storyKey:"munnarStory",includesKey:"munnarIncludes",destination:"Munnar, Kerala",days:3,price:9299,image:"https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=900&q=80"}
+    ];
+    const festivalPackages = [
+      {id:"pongal",festival:true,titleKey:"pongalTitle",whenKey:"pongalWhen",storyKey:"pongalStory",includesKey:"pongalIncludes",destination:"Madurai, Tamil Nadu",days:3,price:10999,image:"https://images.unsplash.com/photo-1561361513-2d000a50f0dc?auto=format&fit=crop&w=900&q=80"},
+      {id:"onam",festival:true,titleKey:"onamTitle",whenKey:"onamWhen",storyKey:"onamStory",includesKey:"onamIncludes",destination:"Alappuzha, Kerala",days:3,price:13999,image:"https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=900&q=80"},
+      {id:"diwali",festival:true,titleKey:"diwaliTitle",whenKey:"diwaliWhen",storyKey:"diwaliStory",includesKey:"diwaliIncludes",destination:"Jaipur, Rajasthan",days:4,price:18499,image:"https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=900&q=80"}
+    ];
+    const allPackages = [...packages,...festivalPackages];
+    const regionalRoutes = [
+      {id:"kakinada-rjy",titleKey:"routeKakinadaRjy",descriptionKey:"routeKakinadaRjyDesc",fromKey:"cityKakinada",toKey:"cityRajahmundry",distance:65},
+      {id:"amalapuram-vizag",titleKey:"routeAmalapuramVizag",descriptionKey:"routeAmalapuramVizagDesc",fromKey:"cityAmalapuram",toKey:"cityVisakhapatnam",distance:215},
+      {id:"rjy-araku",titleKey:"routeRjyAraku",descriptionKey:"routeRjyArakuDesc",fromKey:"cityRajahmundry",toKey:"cityAraku",distance:275},
+      {id:"vizag-araku",titleKey:"routeVizagAraku",descriptionKey:"routeVizagArakuDesc",fromKey:"cityVisakhapatnam",toKey:"cityAraku",distance:115},
+      {id:"kakinada-vizag",titleKey:"routeKakinadaVizag",descriptionKey:"routeKakinadaVizagDesc",fromKey:"cityKakinada",toKey:"cityVisakhapatnam",distance:155}
+    ];
+    const cars = [
+      {id:"sedan",name:"Comfort Sedan",type:"Honda Amaze or similar",seats:4,rate:3200,ratePerKm:18,image:"https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=1000&q=85"},
+      {id:"suv",name:"Adventure SUV",type:"Toyota Fortuner or similar",seats:5,rate:4600,ratePerKm:24,image:"https://images.unsplash.com/photo-1617469767053-d3b523a0b982?auto=format&fit=crop&w=1000&q=85"},
+      {id:"van",name:"Group Traveller",type:"Toyota Innova Crysta or similar",seats:6,rate:5800,ratePerKm:30,image:"https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=1000&q=85"}
+    ];
+    const state = {language:"en",packageId:"coorg",carId:"suv",bookingType:"package",routeId:null,booking:null,viewerAngle:0,dragging:false,lastX:0};
+    const $ = selector => document.querySelector(selector);
+    const t = (key, values={}) => {
+      let value = translations[state.language][key] || translations.en[key] || key;
+      return value.replace(/\{(\w+)\}/g,(_,name)=>values[name] ?? "");
+    };
+    const packageTitle = item => item.titleKey?t(item.titleKey):item.title;
+    const formatPrice = value => new Intl.NumberFormat(state.language==="en"?"en-IN":state.language+"-IN",{style:"currency",currency:"INR",maximumFractionDigits:0}).format(value);
+
+    function applyLanguage(){
+      document.documentElement.lang=state.language;
+      document.querySelectorAll("[data-i18n]").forEach(element=>{element.innerHTML=t(element.dataset.i18n)});
+      document.querySelectorAll("[data-i18n-placeholder]").forEach(element=>{element.placeholder=t(element.dataset.i18nPlaceholder)});
+      if(state.bookingType==="route"&&state.routePickupAutofilled){
+        const selectedRoute=regionalRoutes.find(item=>item.id===state.routeId);
+        if(selectedRoute)$("#pickup").value=t(selectedRoute.fromKey);
+      }
+      renderPackages();
+      renderRoutes();
+      renderCars();
+      updateEstimate();
+      updateSeason();
+    }
+    function renderPackages(){
+      renderPackageCards("#packageList",packages);
+      renderPackageCards("#festivalList",festivalPackages);
+    }
+    function renderPackageCards(target,items){
+      $(target).innerHTML=items.map(item=>`
+        <article class="package-card ${state.packageId===item.id?"selected":""}" data-package="${item.id}" tabindex="0" role="button" aria-pressed="${state.packageId===item.id}">
+          <div class="package-image ${item.festival?"festival-card":""}" style="background-image:url('${item.image}')"><span class="season-label">${item.festival?t(item.whenKey):t("season"+item.season[0].toUpperCase()+item.season.slice(1))}</span></div>
+          <div class="package-body"><div class="package-title-row"><div><h3>${packageTitle(item)}</h3><span class="package-location">⌖ ${item.destination}</span></div><span class="package-days">${item.days} ${t("days")}</span></div>
+            <p class="package-story">${t(item.storyKey)}</p><p class="package-includes">${t(item.includesKey)}</p>
+            <div class="package-bottom"><div class="package-price">${formatPrice(item.price)} <small>${t("perPerson")}</small></div><button class="select-link" type="button" data-package-select="${item.id}">${state.packageId===item.id?t("selectedTrip"):item.festival?t("selectFestival"):t("selectTrip")} ↗</button></div>
+          </div>
+        </article>`).join("");
+    }
+    function renderRoutes(){
+      const isReturn=$("#journeyType").value==="return";
+      $("#routeList").innerHTML=regionalRoutes.map(route=>{
+        const car=cars.find(item=>item.id===state.carId);
+        const distance=route.distance*(isReturn?2:1);
+        const fare=distance*car.ratePerKm;
+        const selected=state.bookingType==="route"&&state.routeId===route.id;
+        return `<article class="route-card ${selected?"selected":""}" data-route="${route.id}">
+          <span class="route-km">↗ ${route.distance} km · ${t("oneWayWord")}</span>
+          <h3>${t(route.titleKey)}</h3><p>${t(route.descriptionKey)}</p>
+          <div class="route-bottom"><div class="route-fare">${formatPrice(fare)}<small>${t("routePriceFrom")} · ${car.name} · ${t(isReturn?"roundTripWord":"oneWayWord")}</small></div>
+            <button class="route-select" type="button" data-route-select="${route.id}">${selected?t("routeSelected"):t("routeSelect")}</button></div>
+        </article>`;
+      }).join("");
+    }
+    function renderCars(){
+      $("#carList").innerHTML=cars.map(item=>`
+        <article class="car-card ${state.carId===item.id?"selected":""}" data-car="${item.id}">
+          <div class="car-image" style="background-image:url('${item.image}')"><span class="car-image-badge">${item.seats} ${t("features").split(" · ")[0]}</span><button class="view-360" type="button" data-view-car="${item.id}">↻ 360°</button></div>
+          <div class="car-body"><div class="car-title-row"><div><h3>${item.name}</h3><div class="car-class">${item.type}</div></div><div class="car-rate">${formatPrice(item.rate)}<small>/ day · ${formatPrice(item.ratePerKm)}${t("perKm")} route · driver</small></div></div>
+            <div class="car-features"><span>✦ ${item.seats} ${t("features").split(" · ")[0]}</span><span>❄ AC</span><span>◉ ${t("features").split(" · ")[2]}</span></div>
+            <button class="car-select" type="button" data-car-select="${item.id}">${state.carId===item.id?t("selectedCar"):t("selectCar")}</button>
+          </div>
+        </article>`).join("");
+    }
+    function updateSeason(){
+      const months=[new Date().getMonth()];
+      const key=months[0]>=5&&months[0]<=8?"seasonMonsoon":months[0]>=9||months[0]<=1?"seasonWinter":"seasonSummer";
+      $("#currentSeason").textContent=`✦ ${t("seasonLabel")}: ${t(key)}`;
+    }
+    function updateEstimate(){
+      const selectedPackage=allPackages.find(item=>item.id===state.packageId);
+      const selectedCar=cars.find(item=>item.id===state.carId);
+      if(!selectedPackage||!selectedCar){$("#estimateTotal").textContent="—";$("#estimateDetails").textContent="";return}
+      const people=Number($("#travellers").value||2);
+      if(state.bookingType==="route"){
+        const route=regionalRoutes.find(item=>item.id===state.routeId);
+        if(!route){$("#estimateTotal").textContent="—";$("#estimateDetails").textContent=t("chooseRouteHint");$("#routeQuoteTitle").textContent=t("routeQuoteTitle");$("#routeQuoteDetails").textContent=t("chooseRouteHint");return}
+        const returnTrip=$("#journeyType").value==="return";
+        const chargeableDistance=route.distance*(returnTrip?2:1);
+        const carFare=chargeableDistance*selectedCar.ratePerKm;
+        $("#estimateTotal").textContent=formatPrice(carFare);
+        $("#estimateDetails").textContent=`${t("distanceLabel")}: ${chargeableDistance} km · ${selectedCar.name}`;
+        $("#routeQuoteTitle").textContent=t("routeQuoteTitle");
+        $("#routeQuoteDetails").innerHTML=`${t(route.titleKey)} · <strong>${route.distance} km ${t("oneWayWord")}</strong><br>${t("routeFareDetails",{distance:chargeableDistance,direction:t(returnTrip?"roundTripWord":"oneWayWord"),rate:formatPrice(selectedCar.ratePerKm),car:selectedCar.name})}<br>${t("routeFareIncludes")}<br>${t("distanceDisclaimer")}`;
+        renderRoutes();
+        return;
+      }
+      const total=selectedPackage.price*people+selectedCar.rate*selectedPackage.days;
+      $("#estimateTotal").textContent=formatPrice(total);
+      $("#estimateDetails").textContent=t("estimateFor",{days:selectedPackage.days,people});
+      $("#routeQuoteTitle").textContent=t("packageQuoteHint");
+      $("#routeQuoteDetails").textContent=t("packageFareLabel")+": "+formatPrice(selectedPackage.price*people)+" · "+t("distanceDisclaimer");
+      renderRoutes();
+    }
+    function selectPackage(id){state.packageId=id;state.bookingType="package";state.routeId=null;renderPackages();updateEstimate();$("#cars").scrollIntoView({behavior:"smooth",block:"start"})}
+    function selectRoute(id){state.bookingType="route";state.routeId=id;const route=regionalRoutes.find(item=>item.id===id);if(route){state.routePickupAutofilled=true;$("#pickup").value=t(route.fromKey)}updateEstimate();$("#cars").scrollIntoView({behavior:"smooth",block:"start"})}
+    function selectCar(id){state.carId=id;renderCars();updateEstimate()}
+    function openModal(id){$("#"+id).classList.add("open");document.body.style.overflow="hidden"}
+    function closeModal(id){$("#"+id).classList.remove("open");if(!document.querySelector(".modal-backdrop.open"))document.body.style.overflow=""}
+    function safe(value){return String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]))}
+    function makeTicket(){
+      const {name,date,pickup,travellers,payment,trip,route,journeyType,car,total,id}=state.booking;
+      const tripName=route?t(route.titleKey):packageTitle(trip);
+      const destination=route?t(route.toKey):trip.destination;
+      const labels=["ticketGuest","ticketTrip","ticketCar","ticketDate","ticketTravellers","ticketPickup"];
+      const details=[name,tripName,car.name,date,travellers,pickup];
+      if(route){labels.push("ticketDistance");details.push(`${route.distance*(journeyType==="return"?2:1)} km · ${t(journeyType==="return"?"roundTripTicket":"oneWayTicket")}`)}
+      labels.push("ticketPayment","ticketTotal");
+      details.push(payment,formatPrice(total));
+      const rows=labels.map((label,index)=>`<div><strong>${safe(t(label))}:</strong> ${safe(details[index])}</div>`).join("");
+      const ticketRoute=t("ticketRoute",{from:pickup,to:destination});
+      $("#ticketPreview").innerHTML=`<div class="ticket-brand"><span>↗ roamly.</span><span class="ticket-id">${safe(id)}</span></div><div class="ticket-route">${safe(ticketRoute)}</div><div class="ticket-meta">${rows}</div>`;
+      const message=`Roamly demo booking ${id}: ${tripName} (${ticketRoute}), ${date}, ${travellers} traveller(s), ${formatPrice(total)}. This is a demo ticket.`;
+      $("#shareWhatsapp").href=`https://wa.me/?text=${encodeURIComponent(message)}`;
+      $("#downloadTicket").onclick=()=>{
+        const content=`<!doctype html><html><head><meta charset="utf-8"><title>Roamly demo ticket</title><style>body{font:16px Arial,sans-serif;max-width:620px;margin:40px auto;padding:24px;color:#18352c}.ticket{border:1px dashed #9aa99c;border-radius:16px;padding:24px}.brand{font-size:22px;font-weight:bold}.id{float:right;color:#718078}.route{font-size:24px;margin:28px 0 8px}p{line-height:1.8}small{color:#718078}</style></head><body><div class="ticket"><span class="brand">↗ roamly.</span><span class="id">${safe(id)}</span><div class="route">${safe(ticketRoute)}</div>${labels.map((label,index)=>`<p><strong>${safe(t(label))}:</strong> ${safe(details[index])}</p>`).join("")}<small>${safe(t("ticketDisclaimer"))}</small></div></body></html>`;
+        const blob=new Blob([content],{type:"text/html;charset=utf-8"});
+        const url=URL.createObjectURL(blob);
+        const link=document.createElement("a");link.href=url;link.download=t("downloadFile");link.click();
+        setTimeout(()=>URL.revokeObjectURL(url),1000);
+      };
+    }
+
+    $("#languageSelect").addEventListener("change",event=>{state.language=event.target.value;applyLanguage()});
+    $("#pickup").addEventListener("input",()=>{state.routePickupAutofilled=false});
+    $("#travellers").addEventListener("change",updateEstimate);
+    $("#journeyType").addEventListener("change",updateEstimate);
+    ["#packageList","#festivalList"].forEach(target=>{
+      $(target).addEventListener("click",event=>{const card=event.target.closest("[data-package]");if(card)selectPackage(card.dataset.package)});
+      $(target).addEventListener("keydown",event=>{const card=event.target.closest("[data-package]");if(card&&(event.key==="Enter"||event.key===" ")){event.preventDefault();selectPackage(card.dataset.package)}});
+    });
+    $("#routeList").addEventListener("click",event=>{
+      const selection=event.target.closest("[data-route-select]");
+      if(selection)selectRoute(selection.dataset.routeSelect);
+    });
+    $("#carList").addEventListener("click",event=>{
+      const viewer=event.target.closest("[data-view-car]");
+      if(viewer){const car=cars.find(item=>item.id===viewer.dataset.viewCar);$("#viewerTitle").textContent=car.name;$("#viewerCar").src=car.image;$("#viewerCar").alt=car.name;state.viewerAngle=0;$("#viewerCar").style.transform="rotateY(0deg)";$("#angleValue").textContent="0°";openModal("viewerBackdrop");return}
+      const selector=event.target.closest("[data-car-select]");
+      if(selector)selectCar(selector.dataset.carSelect);
+    });
+    $("#bookingForm").addEventListener("submit",event=>{
+      event.preventDefault();
+      const trip=allPackages.find(item=>item.id===state.packageId),car=cars.find(item=>item.id===state.carId);
+      if(!trip||!car){$("#formError").textContent=t("requiredSelections");return}
+      const route=state.bookingType==="route"?regionalRoutes.find(item=>item.id===state.routeId):null;
+      if(state.bookingType==="route"&&!route){$("#formError").textContent=t("chooseRouteHint");$("#routes").scrollIntoView({behavior:"smooth"});return}
+      $("#formError").textContent="";
+      const form=new FormData(event.currentTarget);
+      const travellers=Number(form.get("travellers"));
+      const journeyType=String(form.get("journeyType"));
+      const total=route?route.distance*(journeyType==="return"?2:1)*car.ratePerKm:trip.price*travellers+car.rate*trip.days;
+      state.booking={name:String(form.get("name")).trim(),phone:String(form.get("phone")).trim(),date:String(form.get("date")),pickup:String(form.get("pickup")).trim(),travellers,payment:"UPI",trip,route,journeyType,car,total,id:"RM"+Date.now().toString().slice(-8)};
+      $("#paymentAmount").textContent=formatPrice(total);
+      openModal("paymentBackdrop");
+    });
+    $("#contactForm").addEventListener("submit",event=>{
+      event.preventDefault();
+      const form=new FormData(event.currentTarget);
+      const name=String(form.get("contactName")).trim();
+      const phone=String(form.get("contactPhone")).trim();
+      const message=String(form.get("contactMessage")).trim();
+      const text=`${t("contactMessageIntro")}\n${t("fullName")}: ${name}${phone?`\n${t("phoneNumber")}: ${phone}`:""}\n${message}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`,"_blank","noopener,noreferrer");
+    });
+    $("#confirmPayment").addEventListener("click",()=>{
+      state.booking.payment=document.querySelector('input[name="paymentMethod"]:checked').value;
+      closeModal("paymentBackdrop");makeTicket();openModal("ticketBackdrop");
+    });
+    document.querySelectorAll("[data-close]").forEach(button=>button.addEventListener("click",()=>closeModal(button.dataset.close)));
+    document.querySelectorAll(".modal-backdrop").forEach(backdrop=>backdrop.addEventListener("click",event=>{if(event.target===backdrop)closeModal(backdrop.id)}));
+    document.addEventListener("keydown",event=>{if(event.key==="Escape"){const open=document.querySelector(".modal-backdrop.open");if(open)closeModal(open.id)}});
+    const viewerStage=$("#viewerStage");
+    viewerStage.addEventListener("pointerdown",event=>{state.dragging=true;state.lastX=event.clientX;viewerStage.setPointerCapture(event.pointerId)});
+    viewerStage.addEventListener("pointermove",event=>{
+      if(!state.dragging)return;
+      const delta=event.clientX-state.lastX;state.lastX=event.clientX;
+      state.viewerAngle=(state.viewerAngle+delta*.8+360)%360;
+      $("#viewerCar").style.transform=`rotateY(${state.viewerAngle}deg)`;
+      $("#angleValue").textContent=`${Math.round(state.viewerAngle)}°`;
+    });
+    viewerStage.addEventListener("pointerup",()=>{state.dragging=false});
+    viewerStage.addEventListener("pointercancel",()=>{state.dragging=false});
+    const today=new Date();today.setMinutes(today.getMinutes()-today.getTimezoneOffset());
+    $("#tripDate").min=today.toISOString().slice(0,10);
+    $("#languageSelect").value=state.language;
+    applyLanguage();
+    const introScene=$("#introScene");
+    let introTimer,cameraTimer;
+    function finishIntro(){
+      if(!introScene||introScene.classList.contains("finished"))return;
+      clearTimeout(introTimer);
+      clearTimeout(cameraTimer);
+      introScene.classList.add("skipped");
+      document.body.classList.remove("intro-active");
+      setTimeout(()=>introScene.classList.add("finished"),500);
+    }
+    $("#skipIntro").addEventListener("click",finishIntro);
+    introScene.addEventListener("animationend",event=>{if(event.animationName==="intro-scene-out")finishIntro()});
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches)finishIntro();
+    else{
+      cameraTimer=setTimeout(()=>introScene.classList.add("camera-in"),4850);
+      introTimer=setTimeout(finishIntro,7600);
+    }
+  </script>
+</body>
+</html>
